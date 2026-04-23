@@ -6,7 +6,7 @@ A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported t
 
 ## What you should do — IMPORTANT
 
-**Find the primary design file under `deus-ex-vending-machine-test/project/` and read it top to bottom.** Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+**Find the primary design file under `vend-your-destiny.html` and read it top to bottom.** Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) and understand how the pieces fit together before you start implementing.
 
 **If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
 
@@ -18,5 +18,5 @@ The design medium is **HTML/CSS/JS** — these are prototypes, not production co
 
 ## Bundle contents
 
-- `deus-ex-vending-machine-test/README.md` — this file
-- `deus-ex-vending-machine-test/project/` — the `Deus Ex Vending Machine (Test)` project files (HTML prototypes, assets, components)
+- `README.md` — this file
+- `vend-your-destiny.html` — main file (HTML prototypes, assets, components)
