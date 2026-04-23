@@ -135,378 +135,20 @@
   }
   .character .role, .character .tag{ position:relative; z-index:2 }
 
-  /* ========== CSS PORTRAITS ========== */
+  /* ========== PORTRAITS ========== */
   .portrait{
     position: absolute;
     left: 50%; top: 14px;
     transform: translateX(-50%);
     width: 150px; height: 180px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .portrait *{ position:absolute; box-sizing:border-box }
-
-  /* shared eye helper */
-  .p-eye{ width:8px; height:8px; background:#1a1a1a; border-radius:50% }
-
-  /* --- KNIGHT: grey helmet, visor slit, weary eyes --- */
-  .p-knight .helmet{
-    left:15px; top:20px; width:120px; height:140px;
-    background: linear-gradient(180deg, oklch(0.7 0.01 250) 0%, oklch(0.52 0.015 250) 100%);
-    border: 2px solid var(--ink);
-    border-radius: 60px 60px 20px 20px;
-    box-shadow: inset -6px -4px 0 rgba(0,0,0,.15), inset 4px 4px 0 rgba(255,255,255,.2);
-  }
-  .p-knight .plume{
-    left: 62px; top: 0; width: 26px; height: 34px;
-    background: var(--bad);
-    border: 2px solid var(--ink);
-    border-radius: 13px 13px 4px 4px;
-    transform: skewX(-6deg);
-  }
-  .p-knight .visor{
-    left:30px; top:75px; width:90px; height:14px;
-    background: #0a0a0a; border:2px solid var(--ink); border-radius:2px;
-  }
-  .p-knight .visor::before, .p-knight .visor::after{
-    content:""; position:absolute; width:2px; height:10px; background: oklch(0.52 0.015 250); top:0;
-  }
-  .p-knight .visor::before{ left:25px } .p-knight .visor::after{ left:60px }
-  .p-knight .rivet{ width:6px; height:6px; background:oklch(0.35 0.01 250); border:1px solid var(--ink); border-radius:50% }
-  .p-knight .r1{ left:22px; top:40px } .p-knight .r2{ left:122px; top:40px }
-  .p-knight .jaw{
-    left:40px; top:110px; width:70px; height:40px;
-    background: oklch(0.6 0.01 250); border: 2px solid var(--ink);
-    border-radius: 0 0 30px 30px;
+  .portrait img{
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
   }
 
-  /* --- WIZARD: tall pointy hat, long beard, one visible eye --- */
-  .p-wizard .hat{
-    left: 30px; top: -10px; width: 0; height: 0;
-    border-left: 45px solid transparent; border-right: 45px solid transparent;
-    border-bottom: 100px solid oklch(0.35 0.12 280);
-    filter: drop-shadow(2px 2px 0 var(--ink));
-  }
-  .p-wizard .hat-brim{
-    left: 22px; top: 82px; width: 106px; height: 16px;
-    background: oklch(0.28 0.1 280); border: 2px solid var(--ink); border-radius: 8px;
-  }
-  .p-wizard .star{
-    left: 68px; top: 35px; width:10px; height:10px; background: oklch(0.85 0.15 90);
-    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  }
-  .p-wizard .face{
-    left: 35px; top: 92px; width: 80px; height: 60px;
-    background: oklch(0.88 0.04 60); border: 2px solid var(--ink);
-    border-radius: 40px 40px 20px 20px;
-  }
-  .p-wizard .p-eye{ left: 82px; top: 118px }
-  .p-wizard .brow{
-    left:70px; top:112px; width:22px; height:5px; background:#eee;
-    border:1px solid var(--ink); border-radius:3px; transform: rotate(-8deg);
-  }
-  .p-wizard .beard{
-    left: 30px; top: 140px; width: 90px; height: 50px;
-    background: #f0f0f0; border: 2px solid var(--ink);
-    border-radius: 20px 20px 45px 45px;
-  }
-  .p-wizard .beard::after{
-    content:""; position:absolute; left:30px; bottom:-12px; width:30px; height:20px;
-    background:#f0f0f0; border:2px solid var(--ink); border-radius:15px 15px 50% 50%;
-  }
-
-  /* --- K-POP IDOL: sharp hair, shades, mic --- */
-  .p-idol .hair{
-    left:25px; top:10px; width:100px; height:80px;
-    background: linear-gradient(180deg, oklch(0.25 0.02 300) 0%, oklch(0.35 0.08 320) 100%);
-    border: 2px solid var(--ink);
-    border-radius: 50px 50px 10px 10px;
-    clip-path: polygon(0 40%, 20% 0, 50% 20%, 80% 0, 100% 40%, 100% 100%, 0 100%);
-  }
-  .p-idol .face{
-    left:35px; top:55px; width:80px; height:90px;
-    background: oklch(0.92 0.02 60); border: 2px solid var(--ink);
-    border-radius: 40px 40px 30px 30px;
-  }
-  .p-idol .shades{
-    left:38px; top:80px; width:74px; height:20px;
-    background:#1a1a1a; border:2px solid var(--ink); border-radius:4px 12px 12px 4px;
-  }
-  .p-idol .shades::before{
-    content:""; position:absolute; left:8px; top:3px; width:12px; height:4px;
-    background: oklch(0.9 0.15 90); border-radius:50%; opacity:.6;
-  }
-  .p-idol .lips{
-    left:58px; top:120px; width:30px; height:8px;
-    background: var(--bad); border:2px solid var(--ink); border-radius:4px;
-  }
-  .p-idol .mic{
-    left:100px; top:130px; width:18px; height:18px;
-    background: oklch(0.65 0.14 60); border:2px solid var(--ink); border-radius:50%;
-    box-shadow: 0 0 0 3px oklch(0.8 0.12 60 / .3);
-  }
-  .p-idol .mic::after{
-    content:""; position:absolute; left:7px; top:16px; width:4px; height:14px;
-    background: var(--ink);
-  }
-
-  /* --- PIRATE: eyepatch, bandana, scar --- */
-  .p-pirate .bandana{
-    left:20px; top:10px; width:110px; height:45px;
-    background: oklch(0.5 0.18 25); border:2px solid var(--ink);
-    border-radius: 55px 55px 0 0;
-  }
-  .p-pirate .bandana::before, .p-pirate .bandana::after{
-    content:""; position:absolute; top:25px; width:8px; height:8px;
-    background:#fff; border:1px solid var(--ink); border-radius:50%;
-  }
-  .p-pirate .bandana::before{ left:25px } .p-pirate .bandana::after{ left:75px }
-  .p-pirate .face{
-    left:25px; top:48px; width:100px; height:110px;
-    background: oklch(0.78 0.05 50); border:2px solid var(--ink);
-    border-radius: 30px 30px 45px 45px;
-  }
-  .p-pirate .patch{
-    left:38px; top:75px; width:28px; height:22px;
-    background:#0a0a0a; border:2px solid var(--ink); border-radius:4px;
-  }
-  .p-pirate .patch::before{
-    content:""; position:absolute; left:-10px; top:8px; width:40px; height:2px;
-    background: var(--ink); transform: rotate(-20deg);
-  }
-  .p-pirate .p-eye{ left: 95px; top: 82px }
-  .p-pirate .scar{
-    left:85px; top:105px; width:2px; height:18px;
-    background: var(--bad); transform: rotate(12deg);
-  }
-  .p-pirate .beard{
-    left:35px; top:130px; width:80px; height:35px;
-    background:#2a2a2a; border:2px solid var(--ink);
-    border-radius: 0 0 40px 40px;
-  }
-
-  /* --- INTERN: disheveled hair, bags under eyes, lanyard --- */
-  .p-intern .hair{
-    left:30px; top:12px; width:90px; height:45px;
-    background: oklch(0.35 0.03 60); border:2px solid var(--ink);
-    border-radius: 45px 45px 0 0;
-    clip-path: polygon(0 40%, 15% 10%, 35% 25%, 55% 5%, 75% 30%, 100% 15%, 100% 100%, 0 100%);
-  }
-  .p-intern .face{
-    left:35px; top:48px; width:80px; height:100px;
-    background: oklch(0.85 0.03 60); border:2px solid var(--ink);
-    border-radius: 25px 25px 35px 35px;
-  }
-  .p-intern .p-eye{ width:6px; height:6px; background: var(--ink) }
-  .p-intern .e1{ left:55px; top:85px } .p-intern .e2{ left:92px; top:85px }
-  .p-intern .bag1{ left:50px; top:91px; width:14px; height:3px; background:oklch(0.55 0.05 30); border-radius:2px }
-  .p-intern .bag2{ left:87px; top:91px; width:14px; height:3px; background:oklch(0.55 0.05 30); border-radius:2px }
-  .p-intern .mouth{
-    left:62px; top:120px; width:24px; height:2px;
-    background: var(--ink);
-  }
-  .p-intern .lanyard{
-    left:50px; top:150px; width:50px; height:6px;
-    background: oklch(0.55 0.18 25); border:1px solid var(--ink);
-  }
-  .p-intern .badge{
-    left:62px; top:156px; width:26px; height:18px;
-    background:#fff; border:1.5px solid var(--ink); border-radius:2px;
-  }
-  .p-intern .badge::before, .p-intern .badge::after{
-    content:""; position:absolute; left:4px; height:2px; background:var(--ink-2);
-  }
-  .p-intern .badge::before{ top:4px; width:16px } .p-intern .badge::after{ top:9px; width:12px }
-
-  /* --- GHOST: translucent rounded form, hollow eyes --- */
-  .p-ghost .body{
-    left:20px; top:20px; width:110px; height:140px;
-    background: oklch(0.96 0.01 250 / .85);
-    border: 2px solid var(--ink);
-    border-radius: 55px 55px 15px 15px;
-    clip-path: polygon(0 0, 100% 0, 100% 85%, 88% 100%, 75% 85%, 62% 100%, 50% 85%, 38% 100%, 25% 85%, 12% 100%, 0 85%);
-  }
-  .p-ghost .body::after{
-    content:""; position:absolute; inset:4px; border:1px dashed oklch(0.7 0.02 250); border-radius: 50px 50px 10px 10px; pointer-events:none;
-  }
-  .p-ghost .eye{
-    width:14px; height:18px; background: var(--ink);
-    border-radius: 50%;
-  }
-  .p-ghost .e1{ left:50px; top:65px } .p-ghost .e2{ left:86px; top:65px }
-  .p-ghost .mouth{
-    left:65px; top:100px; width:20px; height:20px;
-    background: var(--ink); border-radius: 50%;
-  }
-
-  /* --- DETECTIVE: fedora, trench collar, magnifier --- */
-  .p-detective .fedora-top{
-    left:25px; top:5px; width:100px; height:35px;
-    background: oklch(0.3 0.02 60); border:2px solid var(--ink);
-    border-radius: 50px 50px 4px 4px;
-  }
-  .p-detective .fedora-band{
-    left:25px; top:32px; width:100px; height:8px;
-    background: oklch(0.15 0.02 60); border-top:2px solid var(--ink); border-bottom:2px solid var(--ink);
-  }
-  .p-detective .brim{
-    left:10px; top:38px; width:130px; height:12px;
-    background: oklch(0.3 0.02 60); border:2px solid var(--ink);
-    border-radius: 12px;
-  }
-  .p-detective .face{
-    left:35px; top:52px; width:80px; height:75px;
-    background: oklch(0.82 0.04 50); border:2px solid var(--ink);
-    border-radius: 20px 20px 35px 35px;
-  }
-  .p-detective .stubble{
-    left:40px; top:105px; width:70px; height:20px;
-    background: repeating-linear-gradient(45deg, transparent 0 3px, oklch(0.5 0.02 60 / .5) 3px 4px);
-    border-radius: 0 0 30px 30px;
-  }
-  .p-detective .p-eye{ left: 58px; top: 78px }
-  .p-detective .glass{
-    left:88px; top:72px; width:30px; height:30px;
-    border:3px solid var(--ink); border-radius:50%;
-    background: oklch(0.85 0.12 230 / .4);
-    box-shadow: inset 4px 4px 0 rgba(255,255,255,.5);
-  }
-  .p-detective .glass::after{
-    content:""; position:absolute; right:-10px; bottom:-8px; width:4px; height:18px;
-    background: oklch(0.3 0.02 60); border:1px solid var(--ink); transform: rotate(-30deg);
-  }
-  .p-detective .collar-l, .p-detective .collar-r{
-    top:130px; width:0; height:0;
-    border-top: 30px solid oklch(0.4 0.03 60); border-left: 18px solid transparent;
-    filter: drop-shadow(1px 1px 0 var(--ink));
-  }
-  .p-detective .collar-l{ left:25px; border-left: 18px solid oklch(0.4 0.03 60); border-top-color: transparent; border-right: 18px solid transparent; }
-  .p-detective .collar-r{ left:95px }
-
-  /* --- ALIEN: big head, antennae, big glossy eyes --- */
-  .p-alien .head{
-    left:15px; top:15px; width:120px; height:115px;
-    background: linear-gradient(180deg, oklch(0.82 0.12 145) 0%, oklch(0.65 0.14 145) 100%);
-    border: 2px solid var(--ink);
-    border-radius: 60px 60px 40px 40px / 70px 70px 40px 40px;
-  }
-  .p-alien .antenna{ width:2px; height:22px; background: var(--ink); top:-8px }
-  .p-alien .a1{ left:55px; transform: rotate(-10deg) } .p-alien .a2{ left:95px; transform: rotate(10deg) }
-  .p-alien .antenna::after{
-    content:""; position:absolute; top:-6px; left:-4px; width:10px; height:10px;
-    background: oklch(0.85 0.15 90); border:1.5px solid var(--ink); border-radius:50%;
-    box-shadow: 0 0 6px oklch(0.85 0.15 90);
-  }
-  .p-alien .eye{
-    width: 34px; height: 46px; background: #0a0a0a;
-    border: 2px solid var(--ink); border-radius: 50%;
-  }
-  .p-alien .eye::after{
-    content:""; position:absolute; left:6px; top:8px; width:10px; height:14px;
-    background: #fff; border-radius:50%; opacity:.9;
-  }
-  .p-alien .e1{ left:30px; top:50px } .p-alien .e2{ left:86px; top:50px }
-  .p-alien .mouth{
-    left:62px; top:110px; width:26px; height:4px;
-    background: var(--ink); border-radius:2px;
-  }
-  .p-alien .neck{
-    left:62px; top:128px; width:26px; height:18px;
-    background: oklch(0.65 0.14 145); border:2px solid var(--ink);
-  }
-
-  /* --- DRAGON: snout, horn, small nostril, single eye --- */
-  .p-dragon .head{
-    left:15px; top:20px; width:130px; height:100px;
-    background: linear-gradient(180deg, oklch(0.55 0.18 30) 0%, oklch(0.45 0.2 25) 100%);
-    border: 2px solid var(--ink);
-    border-radius: 45px 70px 60px 30px;
-  }
-  .p-dragon .horn{
-    left: 40px; top: -2px; width: 0; height: 0;
-    border-left: 10px solid transparent; border-right: 10px solid transparent;
-    border-bottom: 38px solid oklch(0.82 0.04 80);
-    filter: drop-shadow(2px 2px 0 var(--ink)); transform: rotate(-12deg);
-  }
-  .p-dragon .horn2{
-    left: 88px; top: 4px; width: 0; height: 0;
-    border-left: 8px solid transparent; border-right: 8px solid transparent;
-    border-bottom: 30px solid oklch(0.82 0.04 80);
-    filter: drop-shadow(2px 2px 0 var(--ink)); transform: rotate(14deg);
-  }
-  .p-dragon .eye{
-    left: 55px; top: 50px; width: 22px; height: 22px;
-    background: oklch(0.88 0.15 90); border: 2px solid var(--ink); border-radius: 50%;
-  }
-  .p-dragon .eye::after{
-    content:""; position:absolute; left:8px; top:3px; width:6px; height:16px;
-    background: var(--ink); border-radius: 3px;
-  }
-  .p-dragon .snout{
-    left: 80px; top: 75px; width: 70px; height: 45px;
-    background: oklch(0.5 0.18 25); border: 2px solid var(--ink);
-    border-radius: 10px 30px 30px 10px;
-  }
-  .p-dragon .nostril{
-    left: 130px; top: 88px; width: 6px; height: 6px;
-    background: var(--ink); border-radius: 50%;
-  }
-  .p-dragon .tooth{
-    left: 100px; top: 118px; width: 0; height: 0;
-    border-left: 4px solid transparent; border-right: 4px solid transparent;
-    border-top: 10px solid #fff;
-    filter: drop-shadow(0 1px 0 var(--ink));
-  }
-  .p-dragon .smoke{
-    left: 132px; top: 72px; width: 8px; height: 8px;
-    background: oklch(0.9 0.02 60 / .6); border-radius: 50%;
-    box-shadow: 10px -6px 0 oklch(0.9 0.02 60 / .4), 16px -14px 0 oklch(0.9 0.02 60 / .25);
-  }
-
-  /* --- DEV: glasses, hoodie, laptop glow --- */
-  .p-dev .hoodie{
-    left:10px; top:80px; width:130px; height:110px;
-    background: oklch(0.35 0.02 280); border:2px solid var(--ink);
-    border-radius: 60px 60px 10px 10px;
-  }
-  .p-dev .hood-inner{
-    left:30px; top:55px; width:90px; height:50px;
-    background: oklch(0.28 0.02 280); border:2px solid var(--ink);
-    border-radius: 45px 45px 10px 10px;
-  }
-  .p-dev .face{
-    left:38px; top:58px; width:74px; height:70px;
-    background: oklch(0.86 0.03 50); border:2px solid var(--ink);
-    border-radius: 30px 30px 28px 28px;
-  }
-  .p-dev .glasses-l, .p-dev .glasses-r{
-    top:82px; width:22px; height:18px;
-    border:2px solid var(--ink); border-radius:50%;
-    background: oklch(0.85 0.12 230 / .35);
-    box-shadow: inset 2px 2px 0 rgba(255,255,255,.6);
-  }
-  .p-dev .glasses-l{ left:44px } .p-dev .glasses-r{ left:82px }
-  .p-dev .bridge{ left:64px; top:90px; width:20px; height:2px; background: var(--ink) }
-  .p-dev .mouth{
-    left:62px; top:113px; width:26px; height:2px;
-    background: var(--ink);
-  }
-  .p-dev .laptop{
-    left:30px; top:135px; width:90px; height:40px;
-    background: oklch(0.2 0.02 60); border:2px solid var(--ink); border-radius:4px;
-  }
-  .p-dev .screen{
-    left:4px; top:4px; width:calc(100% - 8px); height:calc(100% - 8px);
-    background: oklch(0.25 0.02 60);
-    box-shadow: inset 0 0 10px oklch(0.7 0.2 200 / .5);
-  }
-  .p-dev .screen::before, .p-dev .screen::after{
-    content:""; position:absolute; left:6px; height:2px; background: oklch(0.85 0.14 120);
-  }
-  .p-dev .screen::before{ top:6px; width:30px } .p-dev .screen::after{ top:12px; width:20px }
-  .p-dev .glow{
-    left:30px; top:135px; width:90px; height:40px;
-    background: radial-gradient(ellipse at 50% 50%, oklch(0.85 0.14 200 / .4) 0%, transparent 70%);
-    pointer-events:none; transform: translateY(-30px) scaleY(0.5);
-  }
   .character .role{
     font-weight:600; color:var(--ink);
     font-size: 13px; letter-spacing:.02em;
@@ -794,6 +436,50 @@
     padding: 10px; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line);
   }
 
+  /* ================= INTRO OVERLAY ================= */
+  .intro-overlay{
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse at 50% -20%, oklch(0.92 0.03 70) 0%, transparent 55%),
+      repeating-linear-gradient(0deg, transparent 0 39px, oklch(0.9 0.015 70 / .35) 39px 40px),
+      var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100;
+    padding:24px;
+  }
+  .intro-overlay.hidden{ display:none }
+  .intro-inner{
+    max-width:680px; width:100%;
+    display:flex; flex-direction:column; gap:24px;
+    align-items:center;
+  }
+  .intro-crt{
+    width:100%;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 1px, transparent 1px 3px),
+      oklch(0.18 0.02 60);
+    border:2px solid var(--ink);
+    border-radius:8px;
+    padding:20px 24px;
+    color: oklch(0.85 0.14 120);
+    font-family:var(--mono); font-size:13px; line-height:1.8;
+    min-height:240px;
+    text-shadow:0 0 6px oklch(0.75 0.2 130 / .6);
+    white-space:pre-wrap;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .intro-crt-header{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:16px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  }
+  .intro-crt-header .dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    background: var(--good); margin-right:6px;
+    box-shadow: 0 0 8px var(--good);
+    animation: blink 1.6s ease-in-out infinite;
+  }
+
   /* Tiny screens */
   @media (max-width: 980px){
     .scene{ grid-template-columns: 1fr; }
@@ -803,6 +489,20 @@
 </style>
 </head>
 <body>
+
+<div class="intro-overlay" id="intro-overlay">
+  <div class="intro-inner">
+    <div class="logo" style="text-align:center">VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br><span style="font-size:9px;letter-spacing:.06em;color:var(--ink-2);font-weight:400">A DEUS EX MACHINA EXPERIENCE</span></div>
+    <div class="intro-crt">
+      <div class="intro-crt-header">
+        <div><span class="dot"></span>BOOT SEQUENCE</div>
+        <b>MACHINA-3000</b>
+      </div>
+      <span id="intro-text"></span><span class="cursor" id="intro-cursor"></span>
+    </div>
+    <button class="next-btn" id="insert-token-btn" hidden>INSERT TOKEN →</button>
+  </div>
+</div>
 
 <div class="stage">
   <header class="topbar">
@@ -1220,20 +920,6 @@ const Audio = (() => {
   return { resume, startHum, stopHum, clunk, correctTone, funnyTone, badTone, setMuted, isMuted: () => muted };
 })();
 
-/* ===================== PORTRAITS ===================== */
-const PORTRAITS = {
-  knight: `<div class="plume"></div><div class="helmet"></div><div class="rivet r1"></div><div class="rivet r2"></div><div class="visor"></div><div class="jaw"></div>`,
-  wizard: `<div class="hat"></div><div class="star"></div><div class="hat-brim"></div><div class="face"></div><div class="brow"></div><div class="p-eye"></div><div class="beard"></div>`,
-  idol: `<div class="hair"></div><div class="face"></div><div class="shades"></div><div class="lips"></div><div class="mic"></div>`,
-  pirate: `<div class="face"></div><div class="bandana"></div><div class="patch"></div><div class="p-eye"></div><div class="scar"></div><div class="beard"></div>`,
-  intern: `<div class="face"></div><div class="hair"></div><div class="p-eye e1"></div><div class="p-eye e2"></div><div class="bag1"></div><div class="bag2"></div><div class="mouth"></div><div class="lanyard"></div><div class="badge"></div>`,
-  ghost: `<div class="body"></div><div class="eye e1"></div><div class="eye e2"></div><div class="mouth"></div>`,
-  detective: `<div class="face"></div><div class="stubble"></div><div class="fedora-top"></div><div class="fedora-band"></div><div class="brim"></div><div class="p-eye"></div><div class="glass"></div><div class="collar-l"></div><div class="collar-r"></div>`,
-  alien: `<div class="head"></div><div class="antenna a1"></div><div class="antenna a2"></div><div class="eye e1"></div><div class="eye e2"></div><div class="mouth"></div><div class="neck"></div>`,
-  dragon: `<div class="head"></div><div class="horn"></div><div class="horn2"></div><div class="eye"></div><div class="snout"></div><div class="nostril"></div><div class="tooth"></div><div class="smoke"></div>`,
-  dev: `<div class="hood-inner"></div><div class="face"></div><div class="hoodie"></div><div class="glasses-l"></div><div class="glasses-r"></div><div class="bridge"></div><div class="mouth"></div><div class="laptop"><div class="screen"></div></div><div class="glow"></div>`,
-};
-
 /* ===================== STATE ===================== */
 const state = {
   deck: [],
@@ -1295,8 +981,8 @@ function renderRound(){
   charEl.classList.add("enter");
   charRole.textContent = scenario.role;
   charTag.textContent = scenario.tag;
-  charPortrait.className = "portrait p-" + scenario.portrait;
-  charPortrait.innerHTML = PORTRAITS[scenario.portrait] || "";
+  charPortrait.className = "portrait";
+  charPortrait.innerHTML = `<img src="images/${scenario.portrait}.png" alt="${scenario.portrait}">`;
 
   // speech bubble
   speechEl.classList.remove("show");
@@ -1404,7 +1090,40 @@ function endGame(){
   setDisplay("OUT OF ORDER — END OF SHIFT");
 }
 
+/* ===================== INTRO ===================== */
+const INTRO_TEXT = `Somewhere between a broken plot and an impossible situation, a vending machine appeared. Nobody built it. Nobody ordered it. It simply arrived — humming quietly — at the exact moment it was needed.
+
+This is the MACHINA-3000.
+
+It dispenses solutions. Not always the right ones. Not always the expected ones. But always — inexplicably — exactly what the universe required.
+
+This is called Deus Ex Machina. A god from the machine. An answer that shouldn't work — but does.
+
+You are today's operator. 10 customers. 3 options each. Dispense wisely. Or don't. The machine has seen worse.`;
+
+function showIntro(){
+  const overlay = document.getElementById('intro-overlay');
+  overlay.classList.remove('hidden');
+  const textEl = document.getElementById('intro-text');
+  textEl.textContent = '';
+  const tokenBtn = document.getElementById('insert-token-btn');
+  tokenBtn.hidden = true;
+  let i = 0;
+  function type(){
+    if(i < INTRO_TEXT.length){
+      textEl.textContent = INTRO_TEXT.slice(0, i + 1);
+      i++;
+      setTimeout(type, 18);
+    } else {
+      tokenBtn.hidden = false;
+      tokenBtn.focus();
+    }
+  }
+  setTimeout(type, 400);
+}
+
 function startGame(){
+  document.getElementById('intro-overlay').classList.add('hidden');
   state.deck = shuffled(SCENARIOS).slice(0, 10);
   state.idx = 0;
   state.correct = 0;
@@ -1417,7 +1136,8 @@ function startGame(){
 
 /* ===================== EVENTS ===================== */
 nextBtn.addEventListener("click", nextRound);
-$("#reset").addEventListener("click", startGame);
+document.getElementById('insert-token-btn').addEventListener('click', startGame);
+$("#reset").addEventListener("click", showIntro);
 $("#play-again").addEventListener("click", startGame);
 
 // Start audio on first user interaction (browser autoplay policy)
@@ -1446,6 +1166,7 @@ document.addEventListener("keydown", (e) => {
     if(e.key === "Enter" || e.key.toLowerCase() === "n"){ startGame(); }
     return;
   }
+  if(!document.getElementById('intro-overlay').classList.contains('hidden')) return;
   if(["1","2","3"].includes(e.key) && !state.locked){
     const btn = slotsEl.children[parseInt(e.key,10)-1];
     if(btn) btn.click();
@@ -1454,7 +1175,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-startGame();
+showIntro();
 </script>
 </body>
 </html>
