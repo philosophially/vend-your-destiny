@@ -1,0 +1,136 @@
+
+---
+
+### ✅ Scenario 1 — KNIGHT
+
+**Problem:**
+> *"I have faced a thousand battles. I have never lost. Today I feel... nothing. The dragons arrive at noon."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **A Worthy Opponent** | Correct | *DISPENSED. Arrives immediately. Turns out it's you, six years ago. The fight takes all morning. You feel everything again.* |
+| B2 | **Manchet** | Funny | *DISPENSED. The lord's bread. Soft, white, deeply inappropriate. You eat it slowly. It is the best thing you have ever tasted. The dragons can wait.* |
+| C3 | **Medieval Motivational Poster** | Bad | *DISPENSED. Illuminated manuscript. Hand-lettered. Says "Persevere." You stare at it for eleven minutes. The dragons arrive. You are still reading.* |
+
+---
+
+### ✅ Scenario 2 — WIZARD
+
+**Problem:**
+> *"I have studied the arcane arts for forty years, crossed dimensions, and even seen the void look back. Yet, the only thing in my head right now before an impending duel is how to make perfect toast."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **The Void, Toasted** | Correct | *DISPENSED. A single slice. Burnt at the edges, warm in the middle. You understand suddenly that the void was always hungry too. You sit down together. You share breakfast. The duel can wait.* |
+| B2 | **Toaster 3000** | Funny | *DISPENSED. You arrive at the duel. You make toast. It is transcendent. Your opponent eats a slice. He concedes. Nobody fully understands what happened.* |
+| C3 | **A Bread Recipe** | Bad | *DISPENSED. Handwritten. Laminated. The machine is very proud of it. You do not have the ingredients. You do not have the time. It is, however, a great recipe.* |
+
+---
+
+### ✅ Scenario 3 — K-POP IDOL
+
+**Problem:**
+> *"During a live stream I said 'I wish I could sleep for a hundred years.' My anti-fans clipped it. Now the headline reads: IDOL ABANDONS FANS. My comeback is in three days."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **A Good Night's Sleep** | Correct | *DISPENSED. Eight hours. No notifications. No algorithms. You wake up and the internet has moved on to something else entirely. It always does. Your comeback is still in three days. You are ready.* |
+| B2 | **Snorlax Standee** | Funny | *DISPENSED. Fans place it outside your agency building overnight. By morning #IdolSleepsHard is trending. Your fandom has rebranded your scandal into a personality trait. Somehow this works.* |
+| C3 | **Royal Sleep Kit** | Bad | *DISPENSED. The machine meant well. You are now in a tower. Your comeback has been rescheduled by approximately one hundred years. Your anti-fans are also asleep. Small mercies.* |
+
+---
+
+### ✅ Scenario 4 — PIRATE
+
+**Problem:**
+> *"Me ship is gone. Took thirty years to build her. She knew every current, every wind. The crew can find another captain. But I am nothing without her."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **The First Plank** | Correct | *DISPENSED. Worn. Salt-bleached. From before she had a name. You hold it for a long time. Then you find a forest. Then you find an axe. You know what comes next.* |
+| B2 | **A Ship in a Bottle** | Funny | *DISPENSED. One ship. Fully rigged. Approximately four inches long. It is exquisite. You hold it up to the light for a very long time. The crew watches in silence. Nobody knows what to say.* |
+| C3 | **A Future Ship** | Bad | *DISPENSED. You are now in the future. Piracy still exists. It involves a laptop and a VPN. You do not like it here. You do not understand any of this. The ocean is right outside but somehow unreachable.* |
+
+---
+
+### ✅ Scenario 5 — INTERN
+
+**Problem:**
+> *"I hit 'reply-all' on the CEO's email. It's 9:02 AM. I am considering the ocean."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **Radical Transparency** | Correct | *DISPENSED. You send one more email. Subject line: My Sincere Apologies. No filter. Just exactly what happened and exactly how you feel about it. The CEO replies in four minutes; "All good." You are going to be fine.* |
+| B2 | **A Second Reply-All** | Funny | *DISPENSED. You don't know what came over you. Neither does anyone else. By 9:45 AM there is a Slack thread, a meme, and three people who say it's the best thing that's ever happened at this company. HR is still processing.* |
+| C3 | **A Coffee** | Bad | *DISPENSED. Hot. Black. The machine's answer to everything. It does not unsend the email. It does not explain anything. It is, however, a very good coffee. You stare at the wall and drink it slowly.* |
+
+---
+
+### ✅ Scenario 6 — GHOST
+
+**Problem:**
+> *"I've haunted this attic for 400 years. Seventeen families. I know every creak, every secret, every name. The current owner just invited me to brunch. I don't know how to be scary anymore. Why am I trying to be scary even?"*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **A Memory** | Correct | *DISPENSED. A memory. Yours. 1624. You refused to leave because nobody asked you to. Then nobody ever did. Seventeen families. Four hundred years. You didn't haunt this house. You lived in it. Go to brunch.* |
+| B2 | **A Welcome Mat** | Funny | *DISPENSED. Coir. Printed. It says "STILL HERE" in friendly letters. You place it outside the attic door. The current owner adds a small plant next to it. You have feelings about this.* |
+| C3 | **A Bedsheet** | Bad | *DISPENSED. White. Two eye holes. You hold it for a long time... Did the machine just insult you? You put it back. Nobody speaks of this..!* |
+
+
+---
+
+### ✅ Scenario 7 — DETECTIVE
+
+**Problem:**
+> *"The butler did it. And he knows that I know. It's been one whole week. We have breakfast together every morning. The eggs are excellent. The outside keeps raining. I cannot prove a thing."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **A Frying Pan** | Correct | *DISPENSED. Cast iron. Still warm. You turn it over. You spot the monogram. You have your thread. The eggs, it turns out, were a distraction.* |
+| B2 | **Another Butler** | Funny | *DISPENSED. Now there are TWO butlers. One of them did it. You are back to square one.* |
+| C3 | **An Umbrella** | Bad | *DISPENSED. Compact. Reliable. You step outside. The outside is still raining. The case is exactly where you left it. The butler waves from the window. At least you know the eggs tomorrow will also be excellent.* |
+
+---
+
+### ✅ Scenario 8 — ALIEN
+
+**Problem:**
+> *"Greetings. I have crash-landed. My mission was to observe and document human behaviour. It is now Day 5 since I arrived. I have unknowingly watched seventy-two hours of television. I think I cried at a dog video. I do not know who I am anymore. And why do Earth machines need battery?"*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **A Feelings Chart** | Correct | *DISPENSED. Laminated, and Colour-coded. 55-page documented human emotions with helpful facial diagrams. You study it carefully. You recognise quite a number of emotions from the TV watching. But not all. More observation needs to be done. You do not leave... yet.* |
+| B2 | **A Netflix Subscription** | Funny | *DISPENSED. One full month. Your ship sits outside, fully operational. Since you had opinions about the third season, what better reason than to continue? You write up a strongly worded review. You are not going home... yet.* |
+| C3 | **A Battery Manual** | Bad | *DISPENSED. 128 pages. Comprehensive. Covers everything from alkaline, lithium, nickel-cadmium, to even solar cells. Does not cover why humans adore dog videos. Does not explain the emotions and feelings you supposedly had. You read it anyway.* |
+
+---
+
+Ha — "wait, are you?" is the machine having a moment of self-doubt mid-dispense. That's such a funny touch, like the Fate-O-Matic 3000 is questioning its own assumptions in real time. And "Who knows?" as the closing line is perfectly ambiguous — is the dragon a baby? Is that why the villagers keep leaving knights? We will never know.
+
+### ✅ Scenario 9 — DRAGON
+
+**Problem:**
+> *"I'm trying to be a vegetarian. I read about it in a book. But the villagers keep LEAVING KNIGHTS OUTSIDE MY CAVE. It's rude."*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **A Vegetable Garden** | Correct | *DISPENSED. Seeds, soil, and a small trowel. Sized for dragon claws. You plant it outside your cave. The villagers stop leaving knights. Instead, they start leaving unsolicited gardening advice. Still rude. But you have tomatoes now.* |
+| B2 | **Tofu Knight** | Funny | *DISPENSED. It's a knight-shaped block of tofu. Marinated. Surprisingly satisfying.* |
+| C3 | **A Bib** | Bad | *DISPENSED. Oversized. Embroidered in large colourful letters: "BON APPÉTIT!". Perfect for a baby dragon... wait, are you? Nonetheless, you fold it carefully and place it in your cave. Who knows?* |
+
+
+---
+
+### ✅ Scenario 10 — SOLO INDIE DEV
+
+**Problem:**
+> *"The two-week jam ends in four days. I suddenly have an idea. And I have Cursor Pro. Yet I have been staring at a blank screen for two hours. Every entry seems to be on point.. wait why am I overthinking. What am I doing again?"*
+
+| Slot | Item | Kind | Reply |
+|---|---|---|---|
+| A1 | **The First Line of Code** | Correct | *DISPENSED. You type the first line. Then another. And another. You realised the blank screen is gone. You are doing it. You were always going to.* |
+| B2 | **Designing the UI** | Funny | *DISPENSED. Placement. Colour palette. Fonts. You have not written a single line of logic. You deliberate... Maybe this font is better. The coding will happen.. soon.* |
+| C3 | **Research Entries** | Bad | *DISPENSED. You scroll through the entries. Everyone is so good. Someone even submitted on Day 1, wow! Five pages later, it hits you. Today is Day 11. Your screen is still blank. The research was very thorough though. Please start.* |
+
+---

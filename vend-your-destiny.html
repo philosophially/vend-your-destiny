@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Vending Machine of Fate</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: oklch(0.965 0.012 80);
+    --bg-2: oklch(0.94 0.018 80);
+    --ink: oklch(0.22 0.02 60);
+    --ink-2: oklch(0.42 0.015 60);
+    --line: oklch(0.82 0.015 70);
+    --accent: oklch(0.72 0.16 60);
+    --accent-deep: oklch(0.55 0.16 55);
+    --good: oklch(0.65 0.14 150);
+    --funny: oklch(0.72 0.16 60);
+    --bad: oklch(0.6 0.16 25);
+    --display: 'Space Grotesk', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--display);}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 50% -20%, oklch(0.92 0.03 70) 0%, transparent 55%),
+      repeating-linear-gradient(0deg, transparent 0 39px, oklch(0.9 0.015 70 / .35) 39px 40px),
+      var(--bg);
+    overflow-x:hidden;
+  }
+
+  /* ================= LAYOUT ================= */
+  .stage{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 28px 60px;
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  header.topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+  }
+  .logo{
+    font-family:var(--mono); font-weight:600; letter-spacing:.02em;
+    font-size:12px; text-transform:uppercase; color:var(--ink-2);
+  }
+  .logo b{color:var(--ink); font-weight:600}
+  .scoreboard{
+    display:flex; gap:18px;
+    font-family:var(--mono); font-size:12px;
+  }
+  .score-pill{
+    display:flex; align-items:baseline; gap:8px;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-2);
+  }
+  .score-pill .k{ color:var(--ink-2); text-transform:uppercase; letter-spacing:.08em; font-size:10px }
+  .score-pill .v{ font-weight:600; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums }
+  .score-pill.correct .v{ color: var(--good) }
+  .score-pill.funny .v{ color: var(--funny) }
+
+  /* ================= SCENE ================= */
+  .scene{
+    display:grid;
+    grid-template-columns: 1fr 460px 1fr;
+    align-items:end;
+    gap: 24px;
+    min-height: 560px;
+    position:relative;
+  }
+  .scene::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:0; height:1px;
+    background: var(--line);
+  }
+
+  /* ================= CHARACTER ================= */
+  .character-col{
+    display:flex; flex-direction:column; align-items:flex-start; gap:12px;
+    padding-bottom: 18px;
+    min-height: 420px;
+    justify-content:flex-end;
+  }
+  .speech{
+    position:relative;
+    background: #fff;
+    border: 1px solid var(--ink);
+    border-radius: 14px;
+    padding: 16px 18px;
+    max-width: 340px;
+    box-shadow: 4px 4px 0 var(--ink);
+    font-size: 17px;
+    line-height: 1.35;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .speech.show{ opacity:1; transform: translateY(0) }
+  .speech::after{
+    content:"";
+    position:absolute; left:38px; bottom:-10px;
+    width:18px; height:18px; background:#fff;
+    border-right:1px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+    transform: rotate(45deg);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .character{
+    width: 200px; height: 300px;
+    background: var(--bg-2);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    display:flex; flex-direction:column; justify-content:flex-end; align-items:center;
+    padding: 10px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+    text-align:center;
+    box-shadow: 4px 4px 0 var(--ink);
+    position:relative;
+    overflow: hidden;
+    transition: transform .5s cubic-bezier(.2,.9,.3,1.2), opacity .4s;
+  }
+  .character::before{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(-45deg, transparent 0 10px, oklch(0.88 0.02 70 / .35) 10px 11px);
+    pointer-events:none;
+  }
+  .character .role, .character .tag{ position:relative; z-index:2 }
+
+  /* ========== CSS PORTRAITS ========== */
+  .portrait{
+    position: absolute;
+    left: 50%; top: 14px;
+    transform: translateX(-50%);
+    width: 150px; height: 180px;
+  }
+  .portrait *{ position:absolute; box-sizing:border-box }
+
+  /* shared eye helper */
+  .p-eye{ width:8px; height:8px; background:#1a1a1a; border-radius:50% }
+
+  /* --- KNIGHT: grey helmet, visor slit, weary eyes --- */
+  .p-knight .helmet{
+    left:15px; top:20px; width:120px; height:140px;
+    background: linear-gradient(180deg, oklch(0.7 0.01 250) 0%, oklch(0.52 0.015 250) 100%);
+    border: 2px solid var(--ink);
+    border-radius: 60px 60px 20px 20px;
+    box-shadow: inset -6px -4px 0 rgba(0,0,0,.15), inset 4px 4px 0 rgba(255,255,255,.2);
+  }
+  .p-knight .plume{
+    left: 62px; top: 0; width: 26px; height: 34px;
+    background: var(--bad);
+    border: 2px solid var(--ink);
+    border-radius: 13px 13px 4px 4px;
+    transform: skewX(-6deg);
+  }
+  .p-knight .visor{
+    left:30px; top:75px; width:90px; height:14px;
+    background: #0a0a0a; border:2px solid var(--ink); border-radius:2px;
+  }
+  .p-knight .visor::before, .p-knight .visor::after{
+    content:""; position:absolute; width:2px; height:10px; background: oklch(0.52 0.015 250); top:0;
+  }
+  .p-knight .visor::before{ left:25px } .p-knight .visor::after{ left:60px }
+  .p-knight .rivet{ width:6px; height:6px; background:oklch(0.35 0.01 250); border:1px solid var(--ink); border-radius:50% }
+  .p-knight .r1{ left:22px; top:40px } .p-knight .r2{ left:122px; top:40px }
+  .p-knight .jaw{
+    left:40px; top:110px; width:70px; height:40px;
+    background: oklch(0.6 0.01 250); border: 2px solid var(--ink);
+    border-radius: 0 0 30px 30px;
+  }
+
+  /* --- WIZARD: tall pointy hat, long beard, one visible eye --- */
+  .p-wizard .hat{
+    left: 30px; top: -10px; width: 0; height: 0;
+    border-left: 45px solid transparent; border-right: 45px solid transparent;
+    border-bottom: 100px solid oklch(0.35 0.12 280);
+    filter: drop-shadow(2px 2px 0 var(--ink));
+  }
+  .p-wizard .hat-brim{
+    left: 22px; top: 82px; width: 106px; height: 16px;
+    background: oklch(0.28 0.1 280); border: 2px solid var(--ink); border-radius: 8px;
+  }
+  .p-wizard .star{
+    left: 68px; top: 35px; width:10px; height:10px; background: oklch(0.85 0.15 90);
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+  .p-wizard .face{
+    left: 35px; top: 92px; width: 80px; height: 60px;
+    background: oklch(0.88 0.04 60); border: 2px solid var(--ink);
+    border-radius: 40px 40px 20px 20px;
+  }
+  .p-wizard .p-eye{ left: 82px; top: 118px }
+  .p-wizard .brow{
+    left:70px; top:112px; width:22px; height:5px; background:#eee;
+    border:1px solid var(--ink); border-radius:3px; transform: rotate(-8deg);
+  }
+  .p-wizard .beard{
+    left: 30px; top: 140px; width: 90px; height: 50px;
+    background: #f0f0f0; border: 2px solid var(--ink);
+    border-radius: 20px 20px 45px 45px;
+  }
+  .p-wizard .beard::after{
+    content:""; position:absolute; left:30px; bottom:-12px; width:30px; height:20px;
+    background:#f0f0f0; border:2px solid var(--ink); border-radius:15px 15px 50% 50%;
+  }
+
+  /* --- K-POP IDOL: sharp hair, shades, mic --- */
+  .p-idol .hair{
+    left:25px; top:10px; width:100px; height:80px;
+    background: linear-gradient(180deg, oklch(0.25 0.02 300) 0%, oklch(0.35 0.08 320) 100%);
+    border: 2px solid var(--ink);
+    border-radius: 50px 50px 10px 10px;
+    clip-path: polygon(0 40%, 20% 0, 50% 20%, 80% 0, 100% 40%, 100% 100%, 0 100%);
+  }
+  .p-idol .face{
+    left:35px; top:55px; width:80px; height:90px;
+    background: oklch(0.92 0.02 60); border: 2px solid var(--ink);
+    border-radius: 40px 40px 30px 30px;
+  }
+  .p-idol .shades{
+    left:38px; top:80px; width:74px; height:20px;
+    background:#1a1a1a; border:2px solid var(--ink); border-radius:4px 12px 12px 4px;
+  }
+  .p-idol .shades::before{
+    content:""; position:absolute; left:8px; top:3px; width:12px; height:4px;
+    background: oklch(0.9 0.15 90); border-radius:50%; opacity:.6;
+  }
+  .p-idol .lips{
+    left:58px; top:120px; width:30px; height:8px;
+    background: var(--bad); border:2px solid var(--ink); border-radius:4px;
+  }
+  .p-idol .mic{
+    left:100px; top:130px; width:18px; height:18px;
+    background: oklch(0.65 0.14 60); border:2px solid var(--ink); border-radius:50%;
+    box-shadow: 0 0 0 3px oklch(0.8 0.12 60 / .3);
+  }
+  .p-idol .mic::after{
+    content:""; position:absolute; left:7px; top:16px; width:4px; height:14px;
+    background: var(--ink);
+  }
+
+  /* --- PIRATE: eyepatch, bandana, scar --- */
+  .p-pirate .bandana{
+    left:20px; top:10px; width:110px; height:45px;
+    background: oklch(0.5 0.18 25); border:2px solid var(--ink);
+    border-radius: 55px 55px 0 0;
+  }
+  .p-pirate .bandana::before, .p-pirate .bandana::after{
+    content:""; position:absolute; top:25px; width:8px; height:8px;
+    background:#fff; border:1px solid var(--ink); border-radius:50%;
+  }
+  .p-pirate .bandana::before{ left:25px } .p-pirate .bandana::after{ left:75px }
+  .p-pirate .face{
+    left:25px; top:48px; width:100px; height:110px;
+    background: oklch(0.78 0.05 50); border:2px solid var(--ink);
+    border-radius: 30px 30px 45px 45px;
+  }
+  .p-pirate .patch{
+    left:38px; top:75px; width:28px; height:22px;
+    background:#0a0a0a; border:2px solid var(--ink); border-radius:4px;
+  }
+  .p-pirate .patch::before{
+    content:""; position:absolute; left:-10px; top:8px; width:40px; height:2px;
+    background: var(--ink); transform: rotate(-20deg);
+  }
+  .p-pirate .p-eye{ left: 95px; top: 82px }
+  .p-pirate .scar{
+    left:85px; top:105px; width:2px; height:18px;
+    background: var(--bad); transform: rotate(12deg);
+  }
+  .p-pirate .beard{
+    left:35px; top:130px; width:80px; height:35px;
+    background:#2a2a2a; border:2px solid var(--ink);
+    border-radius: 0 0 40px 40px;
+  }
+
+  /* --- INTERN: disheveled hair, bags under eyes, lanyard --- */
+  .p-intern .hair{
+    left:30px; top:12px; width:90px; height:45px;
+    background: oklch(0.35 0.03 60); border:2px solid var(--ink);
+    border-radius: 45px 45px 0 0;
+    clip-path: polygon(0 40%, 15% 10%, 35% 25%, 55% 5%, 75% 30%, 100% 15%, 100% 100%, 0 100%);
+  }
+  .p-intern .face{
+    left:35px; top:48px; width:80px; height:100px;
+    background: oklch(0.85 0.03 60); border:2px solid var(--ink);
+    border-radius: 25px 25px 35px 35px;
+  }
+  .p-intern .p-eye{ width:6px; height:6px; background: var(--ink) }
+  .p-intern .e1{ left:55px; top:85px } .p-intern .e2{ left:92px; top:85px }
+  .p-intern .bag1{ left:50px; top:91px; width:14px; height:3px; background:oklch(0.55 0.05 30); border-radius:2px }
+  .p-intern .bag2{ left:87px; top:91px; width:14px; height:3px; background:oklch(0.55 0.05 30); border-radius:2px }
+  .p-intern .mouth{
+    left:62px; top:120px; width:24px; height:2px;
+    background: var(--ink);
+  }
+  .p-intern .lanyard{
+    left:50px; top:150px; width:50px; height:6px;
+    background: oklch(0.55 0.18 25); border:1px solid var(--ink);
+  }
+  .p-intern .badge{
+    left:62px; top:156px; width:26px; height:18px;
+    background:#fff; border:1.5px solid var(--ink); border-radius:2px;
+  }
+  .p-intern .badge::before, .p-intern .badge::after{
+    content:""; position:absolute; left:4px; height:2px; background:var(--ink-2);
+  }
+  .p-intern .badge::before{ top:4px; width:16px } .p-intern .badge::after{ top:9px; width:12px }
+
+  /* --- GHOST: translucent rounded form, hollow eyes --- */
+  .p-ghost .body{
+    left:20px; top:20px; width:110px; height:140px;
+    background: oklch(0.96 0.01 250 / .85);
+    border: 2px solid var(--ink);
+    border-radius: 55px 55px 15px 15px;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 88% 100%, 75% 85%, 62% 100%, 50% 85%, 38% 100%, 25% 85%, 12% 100%, 0 85%);
+  }
+  .p-ghost .body::after{
+    content:""; position:absolute; inset:4px; border:1px dashed oklch(0.7 0.02 250); border-radius: 50px 50px 10px 10px; pointer-events:none;
+  }
+  .p-ghost .eye{
+    width:14px; height:18px; background: var(--ink);
+    border-radius: 50%;
+  }
+  .p-ghost .e1{ left:50px; top:65px } .p-ghost .e2{ left:86px; top:65px }
+  .p-ghost .mouth{
+    left:65px; top:100px; width:20px; height:20px;
+    background: var(--ink); border-radius: 50%;
+  }
+
+  /* --- DETECTIVE: fedora, trench collar, magnifier --- */
+  .p-detective .fedora-top{
+    left:25px; top:5px; width:100px; height:35px;
+    background: oklch(0.3 0.02 60); border:2px solid var(--ink);
+    border-radius: 50px 50px 4px 4px;
+  }
+  .p-detective .fedora-band{
+    left:25px; top:32px; width:100px; height:8px;
+    background: oklch(0.15 0.02 60); border-top:2px solid var(--ink); border-bottom:2px solid var(--ink);
+  }
+  .p-detective .brim{
+    left:10px; top:38px; width:130px; height:12px;
+    background: oklch(0.3 0.02 60); border:2px solid var(--ink);
+    border-radius: 12px;
+  }
+  .p-detective .face{
+    left:35px; top:52px; width:80px; height:75px;
+    background: oklch(0.82 0.04 50); border:2px solid var(--ink);
+    border-radius: 20px 20px 35px 35px;
+  }
+  .p-detective .stubble{
+    left:40px; top:105px; width:70px; height:20px;
+    background: repeating-linear-gradient(45deg, transparent 0 3px, oklch(0.5 0.02 60 / .5) 3px 4px);
+    border-radius: 0 0 30px 30px;
+  }
+  .p-detective .p-eye{ left: 58px; top: 78px }
+  .p-detective .glass{
+    left:88px; top:72px; width:30px; height:30px;
+    border:3px solid var(--ink); border-radius:50%;
+    background: oklch(0.85 0.12 230 / .4);
+    box-shadow: inset 4px 4px 0 rgba(255,255,255,.5);
+  }
+  .p-detective .glass::after{
+    content:""; position:absolute; right:-10px; bottom:-8px; width:4px; height:18px;
+    background: oklch(0.3 0.02 60); border:1px solid var(--ink); transform: rotate(-30deg);
+  }
+  .p-detective .collar-l, .p-detective .collar-r{
+    top:130px; width:0; height:0;
+    border-top: 30px solid oklch(0.4 0.03 60); border-left: 18px solid transparent;
+    filter: drop-shadow(1px 1px 0 var(--ink));
+  }
+  .p-detective .collar-l{ left:25px; border-left: 18px solid oklch(0.4 0.03 60); border-top-color: transparent; border-right: 18px solid transparent; }
+  .p-detective .collar-r{ left:95px }
+
+  /* --- ALIEN: big head, antennae, big glossy eyes --- */
+  .p-alien .head{
+    left:15px; top:15px; width:120px; height:115px;
+    background: linear-gradient(180deg, oklch(0.82 0.12 145) 0%, oklch(0.65 0.14 145) 100%);
+    border: 2px solid var(--ink);
+    border-radius: 60px 60px 40px 40px / 70px 70px 40px 40px;
+  }
+  .p-alien .antenna{ width:2px; height:22px; background: var(--ink); top:-8px }
+  .p-alien .a1{ left:55px; transform: rotate(-10deg) } .p-alien .a2{ left:95px; transform: rotate(10deg) }
+  .p-alien .antenna::after{
+    content:""; position:absolute; top:-6px; left:-4px; width:10px; height:10px;
+    background: oklch(0.85 0.15 90); border:1.5px solid var(--ink); border-radius:50%;
+    box-shadow: 0 0 6px oklch(0.85 0.15 90);
+  }
+  .p-alien .eye{
+    width: 34px; height: 46px; background: #0a0a0a;
+    border: 2px solid var(--ink); border-radius: 50%;
+  }
+  .p-alien .eye::after{
+    content:""; position:absolute; left:6px; top:8px; width:10px; height:14px;
+    background: #fff; border-radius:50%; opacity:.9;
+  }
+  .p-alien .e1{ left:30px; top:50px } .p-alien .e2{ left:86px; top:50px }
+  .p-alien .mouth{
+    left:62px; top:110px; width:26px; height:4px;
+    background: var(--ink); border-radius:2px;
+  }
+  .p-alien .neck{
+    left:62px; top:128px; width:26px; height:18px;
+    background: oklch(0.65 0.14 145); border:2px solid var(--ink);
+  }
+
+  /* --- DRAGON: snout, horn, small nostril, single eye --- */
+  .p-dragon .head{
+    left:15px; top:20px; width:130px; height:100px;
+    background: linear-gradient(180deg, oklch(0.55 0.18 30) 0%, oklch(0.45 0.2 25) 100%);
+    border: 2px solid var(--ink);
+    border-radius: 45px 70px 60px 30px;
+  }
+  .p-dragon .horn{
+    left: 40px; top: -2px; width: 0; height: 0;
+    border-left: 10px solid transparent; border-right: 10px solid transparent;
+    border-bottom: 38px solid oklch(0.82 0.04 80);
+    filter: drop-shadow(2px 2px 0 var(--ink)); transform: rotate(-12deg);
+  }
+  .p-dragon .horn2{
+    left: 88px; top: 4px; width: 0; height: 0;
+    border-left: 8px solid transparent; border-right: 8px solid transparent;
+    border-bottom: 30px solid oklch(0.82 0.04 80);
+    filter: drop-shadow(2px 2px 0 var(--ink)); transform: rotate(14deg);
+  }
+  .p-dragon .eye{
+    left: 55px; top: 50px; width: 22px; height: 22px;
+    background: oklch(0.88 0.15 90); border: 2px solid var(--ink); border-radius: 50%;
+  }
+  .p-dragon .eye::after{
+    content:""; position:absolute; left:8px; top:3px; width:6px; height:16px;
+    background: var(--ink); border-radius: 3px;
+  }
+  .p-dragon .snout{
+    left: 80px; top: 75px; width: 70px; height: 45px;
+    background: oklch(0.5 0.18 25); border: 2px solid var(--ink);
+    border-radius: 10px 30px 30px 10px;
+  }
+  .p-dragon .nostril{
+    left: 130px; top: 88px; width: 6px; height: 6px;
+    background: var(--ink); border-radius: 50%;
+  }
+  .p-dragon .tooth{
+    left: 100px; top: 118px; width: 0; height: 0;
+    border-left: 4px solid transparent; border-right: 4px solid transparent;
+    border-top: 10px solid #fff;
+    filter: drop-shadow(0 1px 0 var(--ink));
+  }
+  .p-dragon .smoke{
+    left: 132px; top: 72px; width: 8px; height: 8px;
+    background: oklch(0.9 0.02 60 / .6); border-radius: 50%;
+    box-shadow: 10px -6px 0 oklch(0.9 0.02 60 / .4), 16px -14px 0 oklch(0.9 0.02 60 / .25);
+  }
+
+  /* --- DEV: glasses, hoodie, laptop glow --- */
+  .p-dev .hoodie{
+    left:10px; top:80px; width:130px; height:110px;
+    background: oklch(0.35 0.02 280); border:2px solid var(--ink);
+    border-radius: 60px 60px 10px 10px;
+  }
+  .p-dev .hood-inner{
+    left:30px; top:55px; width:90px; height:50px;
+    background: oklch(0.28 0.02 280); border:2px solid var(--ink);
+    border-radius: 45px 45px 10px 10px;
+  }
+  .p-dev .face{
+    left:38px; top:58px; width:74px; height:70px;
+    background: oklch(0.86 0.03 50); border:2px solid var(--ink);
+    border-radius: 30px 30px 28px 28px;
+  }
+  .p-dev .glasses-l, .p-dev .glasses-r{
+    top:82px; width:22px; height:18px;
+    border:2px solid var(--ink); border-radius:50%;
+    background: oklch(0.85 0.12 230 / .35);
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.6);
+  }
+  .p-dev .glasses-l{ left:44px } .p-dev .glasses-r{ left:82px }
+  .p-dev .bridge{ left:64px; top:90px; width:20px; height:2px; background: var(--ink) }
+  .p-dev .mouth{
+    left:62px; top:113px; width:26px; height:2px;
+    background: var(--ink);
+  }
+  .p-dev .laptop{
+    left:30px; top:135px; width:90px; height:40px;
+    background: oklch(0.2 0.02 60); border:2px solid var(--ink); border-radius:4px;
+  }
+  .p-dev .screen{
+    left:4px; top:4px; width:calc(100% - 8px); height:calc(100% - 8px);
+    background: oklch(0.25 0.02 60);
+    box-shadow: inset 0 0 10px oklch(0.7 0.2 200 / .5);
+  }
+  .p-dev .screen::before, .p-dev .screen::after{
+    content:""; position:absolute; left:6px; height:2px; background: oklch(0.85 0.14 120);
+  }
+  .p-dev .screen::before{ top:6px; width:30px } .p-dev .screen::after{ top:12px; width:20px }
+  .p-dev .glow{
+    left:30px; top:135px; width:90px; height:40px;
+    background: radial-gradient(ellipse at 50% 50%, oklch(0.85 0.14 200 / .4) 0%, transparent 70%);
+    pointer-events:none; transform: translateY(-30px) scaleY(0.5);
+  }
+  .character .role{
+    font-weight:600; color:var(--ink);
+    font-size: 13px; letter-spacing:.02em;
+    margin-bottom:4px;
+  }
+  .character .tag{
+    border:1px solid var(--line); background:#fff;
+    padding: 3px 8px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing:.08em; font-size:9px;
+  }
+  .character.enter{ animation: walk-in .7s ease-out }
+  .character.leave{ animation: walk-out .6s ease-in forwards }
+  @keyframes walk-in{
+    0%{ transform: translateX(-120%) rotate(-3deg); opacity:0 }
+    40%{ opacity: 1 }
+    60%{ transform: translateX(6%) rotate(1deg); opacity:1 }
+    100%{ transform: translateX(0) rotate(0); opacity:1 }
+  }
+  @keyframes walk-out{
+    0%{ transform: translateX(0); opacity:1 }
+    100%{ transform: translateX(-160%) rotate(-5deg); opacity:0 }
+  }
+
+  /* ================= VENDING MACHINE ================= */
+  .machine-col{ display:flex; justify-content:center; align-items:end; padding-bottom: 18px }
+  .machine{
+    width: 440px;
+    background: linear-gradient(180deg, oklch(0.55 0.16 55) 0%, oklch(0.48 0.17 50) 100%);
+    border: 2px solid var(--ink);
+    border-radius: 18px 18px 8px 8px;
+    padding: 18px;
+    box-shadow: 8px 8px 0 var(--ink), inset 0 2px 0 rgba(255,255,255,.15);
+    position:relative;
+  }
+  .machine-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom: 14px;
+    color: #fff;
+    font-family: var(--mono); font-size: 11px; letter-spacing:.12em; text-transform:uppercase;
+  }
+  .machine-head b{ font-weight:600 }
+  .machine-head .dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    background: var(--good); margin-right:6px;
+    box-shadow: 0 0 8px var(--good);
+    animation: blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink{ 50%{ opacity:.3 } }
+
+  .display{
+    background: oklch(0.2 0.02 60);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: oklch(0.85 0.14 120);
+    font-family: var(--mono); font-size: 12px;
+    min-height: 44px;
+    display:flex; align-items:center;
+    margin-bottom: 14px;
+    text-shadow: 0 0 6px oklch(0.75 0.2 130 / .6);
+    overflow:hidden;
+  }
+  .display .txt{ display:inline-block }
+  .display .cursor{
+    display:inline-block; width:8px; height:14px; background: oklch(0.85 0.14 120);
+    margin-left:4px; vertical-align:-2px;
+    animation: blink 1s steps(2) infinite;
+  }
+
+  .slots{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    background: oklch(0.3 0.03 60);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 14px;
+  }
+  .slot{
+    aspect-ratio: 3/4;
+    background: linear-gradient(180deg, oklch(0.97 0.01 80) 0%, oklch(0.9 0.015 80) 100%);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 10px 8px;
+    cursor: pointer;
+    position:relative;
+    transition: transform .12s ease, box-shadow .12s ease;
+    text-align:center;
+    overflow:hidden;
+  }
+  .slot:hover:not([disabled]){
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 oklch(0.3 0.03 60);
+  }
+  .slot:active:not([disabled]){ transform: translateY(0) }
+  .slot[disabled]{ cursor: not-allowed; opacity:.55 }
+  .slot .code{
+    position:absolute; top:6px; left:8px;
+    font-family: var(--mono); font-size: 10px; color: var(--ink-2);
+    letter-spacing:.08em;
+  }
+  .slot .price{
+    position:absolute; top:6px; right:8px;
+    font-family: var(--mono); font-size: 10px; color: var(--accent-deep);
+    font-weight:600;
+  }
+  .slot .glyph{
+    width: 54px; height: 54px;
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    margin-top: 10px;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 6px, oklch(0.88 0.02 70 / .7) 6px 7px),
+      #fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 24px;
+    font-family: var(--display);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .slot .name{
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink); font-weight: 500;
+    line-height: 1.2;
+    text-transform: uppercase; letter-spacing:.04em;
+  }
+  .slot.picked{
+    box-shadow: inset 0 0 0 3px var(--accent);
+  }
+
+  .chute{
+    background: oklch(0.25 0.02 60);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    height: 72px;
+    position:relative;
+    overflow:hidden;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,.4);
+  }
+  .chute::before{
+    content: "DISPENSE";
+    position:absolute; top:6px; left:10px;
+    font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+    color: oklch(0.6 0.02 60);
+  }
+  .dropped{
+    position:absolute;
+    left:50%; top:-60px;
+    transform: translateX(-50%);
+    width: 56px; height: 56px;
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--display); font-weight:600; font-size: 22px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,.3);
+  }
+  .dropped.drop{ animation: drop 1s cubic-bezier(.5,.1,.4,1) forwards }
+  @keyframes drop{
+    0%{ top:-60px; transform: translateX(-50%) rotate(0) }
+    70%{ top: 18px; transform: translateX(-50%) rotate(12deg) }
+    85%{ top: 14px; transform: translateX(-50%) rotate(-6deg) }
+    100%{ top: 16px; transform: translateX(-50%) rotate(0) }
+  }
+
+  /* ================= RESULT PANEL ================= */
+  .result-col{
+    display:flex; flex-direction:column; align-items:flex-end; gap: 10px;
+    padding-bottom: 18px;
+    min-height: 420px;
+    justify-content:flex-end;
+  }
+  .result-card{
+    width: 320px;
+    background: var(--bg-2);
+    border: 1px solid var(--ink);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 4px 4px 0 var(--ink);
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .4s, transform .4s;
+    font-size: 14px;
+  }
+  .result-card.show{ opacity:1; transform: translateY(0) }
+  .result-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom: 10px;
+    font-family: var(--mono); font-size: 10px; letter-spacing:.12em; text-transform:uppercase;
+    color: var(--ink-2);
+  }
+  .verdict{
+    padding: 2px 8px; border-radius: 4px;
+    border: 1px solid currentColor;
+    font-weight: 600;
+  }
+  .verdict.correct{ color: var(--good) }
+  .verdict.funny{ color: var(--funny) }
+  .verdict.bad{ color: var(--bad) }
+  .result-body{
+    font-family: var(--display); font-size: 15px; line-height: 1.4;
+    color: var(--ink);
+  }
+  .result-meta{
+    margin-top: 10px; padding-top:10px;
+    border-top: 1px dashed var(--line);
+    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+    display:flex; justify-content:space-between;
+  }
+  .result-meta b{ color: var(--ink); font-weight:600 }
+
+  .next-btn{
+    font-family: var(--mono); font-size: 12px; letter-spacing:.08em;
+    text-transform:uppercase;
+    background: var(--ink); color: var(--bg);
+    border: 1px solid var(--ink);
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--accent-deep);
+    transition: transform .1s;
+  }
+  .next-btn:hover{ transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--accent-deep) }
+  .next-btn:active{ transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--accent-deep) }
+  .next-btn[hidden]{ display:none }
+
+  /* ================= FOOTER ================= */
+  .footer{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+    padding-top: 8px;
+    letter-spacing:.06em;
+  }
+  .footer .hint kbd{
+    font-family: var(--mono);
+    background: #fff; border: 1px solid var(--line);
+    padding: 1px 6px; border-radius: 3px; font-size:10px;
+    margin: 0 2px;
+  }
+  .reset{
+    background:none; border:none; cursor:pointer;
+    font-family: var(--mono); font-size:11px; color: var(--ink-2);
+    text-transform:uppercase; letter-spacing:.08em;
+    text-decoration: underline;
+  }
+  .reset:hover{ color: var(--ink) }
+  .footer button.reset + button.reset{ margin-left: 12px }
+  #mute-btn[data-muted="1"]{ color: var(--bad) }
+
+  /* ================= END SCREEN ================= */
+  .endcard{
+    position: fixed; inset:0;
+    background: oklch(0.22 0.02 60 / .9);
+    display:none; align-items:center; justify-content:center;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+  .endcard.show{ display:flex }
+  .endcard .inner{
+    background: var(--bg);
+    border: 2px solid var(--ink);
+    border-radius: 18px;
+    padding: 32px;
+    width: 440px;
+    text-align:center;
+    box-shadow: 8px 8px 0 var(--accent-deep);
+  }
+  .endcard h2{
+    font-family: var(--display); font-size: 28px; margin: 0 0 6px;
+  }
+  .endcard .sub{ font-family:var(--mono); font-size:12px; color:var(--ink-2); margin-bottom:20px; letter-spacing:.08em; text-transform:uppercase }
+  .endcard .tallies{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;
+  }
+  .tally{
+    border:1px solid var(--ink); border-radius: 10px; padding: 14px;
+    background: var(--bg-2);
+  }
+  .tally .k{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-2) }
+  .tally .v{ font-family:var(--display); font-size: 32px; font-weight:600; font-variant-numeric:tabular-nums }
+  .tally.correct .v{ color: var(--good) }
+  .tally.funny .v{ color: var(--funny) }
+  .endcard .rank{
+    font-family: var(--display); font-size: 18px; margin-bottom: 18px;
+    padding: 10px; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line);
+  }
+
+  /* Tiny screens */
+  @media (max-width: 980px){
+    .scene{ grid-template-columns: 1fr; }
+    .character-col, .result-col{ align-items:center; min-height: auto }
+    .machine{ width: 100% }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <header class="topbar">
+    <div class="logo">VENDING MACHINE <b>OF FATE</b> &nbsp;·&nbsp; v1.0</div>
+    <div class="scoreboard">
+      <div class="score-pill correct"><span class="k">Correct</span><span class="v" id="sc-correct">0</span></div>
+      <div class="score-pill funny"><span class="k">Comedy</span><span class="v" id="sc-funny">0</span></div>
+      <div class="score-pill"><span class="k">Round</span><span class="v" id="sc-round">0/10</span></div>
+    </div>
+  </header>
+
+  <main class="scene">
+    <div class="character-col">
+      <div class="speech" id="speech">...</div>
+      <div class="character" id="character">
+        <div class="portrait" id="char-portrait"></div>
+        <div class="role" id="char-role">CUSTOMER</div>
+        <div class="tag" id="char-tag">placeholder portrait</div>
+      </div>
+    </div>
+
+    <div class="machine-col">
+      <div class="machine">
+        <div class="machine-head">
+          <div><span class="dot"></span>READY</div>
+          <b>FATE-O-MATIC 3000</b>
+        </div>
+        <div class="display"><span class="txt" id="display-txt">INSERT TOKEN… AWAITING CUSTOMER</span><span class="cursor"></span></div>
+        <div class="slots" id="slots">
+          <!-- filled by JS -->
+        </div>
+        <div class="chute" id="chute"></div>
+      </div>
+    </div>
+
+    <div class="result-col">
+      <div class="result-card" id="result">
+        <div class="result-head">
+          <span>TRANSACTION LOG</span>
+          <span class="verdict" id="verdict">—</span>
+        </div>
+        <div class="result-body" id="result-body">Awaiting dispense…</div>
+        <div class="result-meta">
+          <span>ITEM: <b id="result-item">—</b></span>
+          <span id="result-points">+0</span>
+        </div>
+      </div>
+      <button class="next-btn" id="next-btn" hidden>Next Customer →</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="hint">CLICK a slot to dispense. <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> to pick, <kbd>N</kbd> for next.</div>
+    <button class="reset" id="mute-btn" data-muted="0">♪ Sound On</button>
+    <button class="reset" id="reset">Reset Game</button>
+  </footer>
+</div>
+
+<div class="endcard" id="endcard">
+  <div class="inner">
+    <div class="sub">Shift Complete</div>
+    <h2 id="end-title">The machine hums to sleep.</h2>
+    <div class="tallies">
+      <div class="tally correct"><div class="k">Correct</div><div class="v" id="end-correct">0</div></div>
+      <div class="tally funny"><div class="k">Comedy</div><div class="v" id="end-funny">0</div></div>
+    </div>
+    <div class="rank" id="end-rank">—</div>
+    <button class="next-btn" id="play-again">Play Again</button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const SCENARIOS = [
+  {
+    role: "KNIGHT",
+    portrait: "knight",
+    tag: "armored, unmoved",
+    problem: "I have faced a thousand battles. I have never lost. Today I feel... nothing. The dragons arrive at noon.",
+    options: [
+      { code: "A1", name: "A Worthy Opponent", glyph: "⚔", kind: "correct",
+        reply: "DISPENSED. Arrives immediately. Turns out it's you, six years ago. The fight takes all morning. You feel everything again." },
+      { code: "B2", name: "Manchet",           glyph: "🥖", kind: "funny",
+        reply: "DISPENSED. The lord's bread. Soft, white, deeply inappropriate. You eat it slowly. It is the best thing you have ever tasted. The dragons can wait." },
+      { code: "C3", name: "Motivational Poster", glyph: "✦", kind: "bad",
+        reply: "DISPENSED. Illuminated manuscript. Hand-lettered. Says \"Persevere.\" You stare at it for eleven minutes. The dragons arrive. You are still reading." },
+    ],
+  },
+  {
+    role: "WIZARD",
+    portrait: "wizard",
+    tag: "robes, distracted",
+    problem: "I have studied the arcane arts for forty years, crossed dimensions, and even seen the void look back. Yet, the only thing in my head right now before an impending duel is how to make perfect toast.",
+    options: [
+      { code: "A1", name: "The Void, Toasted", glyph: "◼", kind: "correct",
+        reply: "DISPENSED. A single slice. Burnt at the edges, warm in the middle. You understand suddenly that the void was always hungry too. You sit down together. You share breakfast. The duel can wait." },
+      { code: "B2", name: "Toaster 3000",      glyph: "▯▯", kind: "funny",
+        reply: "DISPENSED. You arrive at the duel. You make toast. It is transcendent. Your opponent eats a slice. He concedes. Nobody fully understands what happened." },
+      { code: "C3", name: "A Bread Recipe",    glyph: "✎", kind: "bad",
+        reply: "DISPENSED. Handwritten. Laminated. The machine is very proud of it. You do not have the ingredients. You do not have the time. It is, however, a great recipe." },
+    ],
+  },
+  {
+    role: "K-POP IDOL",
+    portrait: "idol",
+    tag: "sleepless, trending",
+    problem: "During a live stream I said 'I wish I could sleep for a hundred years.' My anti-fans clipped it. Now the headline reads: IDOL ABANDONS FANS. My comeback is in three days.",
+    options: [
+      { code: "A1", name: "A Good Night's Sleep", glyph: "☾", kind: "correct",
+        reply: "DISPENSED. Eight hours. No notifications. No algorithms. You wake up and the internet has moved on to something else entirely. It always does. Your comeback is still in three days. You are ready." },
+      { code: "B2", name: "Snorlax Standee",      glyph: "▓", kind: "funny",
+        reply: "DISPENSED. Fans place it outside your agency building overnight. By morning #IdolSleepsHard is trending. Your fandom has rebranded your scandal into a personality trait. Somehow this works." },
+      { code: "C3", name: "Royal Sleep Kit",      glyph: "♛", kind: "bad",
+        reply: "DISPENSED. The machine meant well. You are now in a tower. Your comeback has been rescheduled by approximately one hundred years. Your anti-fans are also asleep. Small mercies." },
+    ],
+  },
+  {
+    role: "PIRATE",
+    portrait: "pirate",
+    tag: "saltworn, grieving",
+    problem: "Me ship is gone. Took thirty years to build her. She knew every current, every wind. The crew can find another captain. But I am nothing without her.",
+    options: [
+      { code: "A1", name: "The First Plank",   glyph: "▬", kind: "correct",
+        reply: "DISPENSED. Worn. Salt-bleached. From before she had a name. You hold it for a long time. Then you find a forest. Then you find an axe. You know what comes next." },
+      { code: "B2", name: "Ship in a Bottle",  glyph: "⛵", kind: "funny",
+        reply: "DISPENSED. One ship. Fully rigged. Approximately four inches long. It is exquisite. You hold it up to the light for a very long time. The crew watches in silence. Nobody knows what to say." },
+      { code: "C3", name: "A Future Ship",     glyph: "◈", kind: "bad",
+        reply: "DISPENSED. You are now in the future. Piracy still exists. It involves a laptop and a VPN. You do not like it here. You do not understand any of this. The ocean is right outside but somehow unreachable." },
+    ],
+  },
+  {
+    role: "INTERN",
+    portrait: "intern",
+    tag: "lanyard, fluorescent light",
+    problem: "I hit 'reply-all' on the CEO's email. It's 9:02 AM. I am considering the ocean.",
+    options: [
+      { code: "A1", name: "Radical Transparency", glyph: "✉", kind: "correct",
+        reply: "DISPENSED. You send one more email. Subject line: My Sincere Apologies. No filter. Just exactly what happened and exactly how you feel about it. The CEO replies in four minutes; \"All good.\" You are going to be fine." },
+      { code: "B2", name: "A Second Reply-All",   glyph: "!!", kind: "funny",
+        reply: "DISPENSED. You don't know what came over you. Neither does anyone else. By 9:45 AM there is a Slack thread, a meme, and three people who say it's the best thing that's ever happened at this company. HR is still processing." },
+      { code: "C3", name: "A Coffee",             glyph: "☕", kind: "bad",
+        reply: "DISPENSED. Hot. Black. The machine's answer to everything. It does not unsend the email. It does not explain anything. It is, however, a very good coffee. You stare at the wall and drink it slowly." },
+    ],
+  },
+  {
+    role: "GHOST",
+    portrait: "ghost",
+    tag: "translucent, invited",
+    problem: "I've haunted this attic for 400 years. Seventeen families. I know every creak, every secret, every name. The current owner just invited me to brunch. I don't know how to be scary anymore. Why am I trying to be scary even?",
+    options: [
+      { code: "A1", name: "A Memory",         glyph: "◉", kind: "correct",
+        reply: "DISPENSED. A memory. Yours. 1624. You refused to leave because nobody asked you to. Then nobody ever did. Seventeen families. Four hundred years. You didn't haunt this house. You lived in it. Go to brunch." },
+      { code: "B2", name: "A Welcome Mat",    glyph: "▭", kind: "funny",
+        reply: "DISPENSED. Coir. Printed. It says \"STILL HERE\" in friendly letters. You place it outside the attic door. The current owner adds a small plant next to it. You have feelings about this." },
+      { code: "C3", name: "A Bedsheet",       glyph: "◇", kind: "bad",
+        reply: "DISPENSED. White. Two eye holes. You hold it for a long time... Did the machine just insult you? You put it back. Nobody speaks of this..!" },
+    ],
+  },
+  {
+    role: "DETECTIVE",
+    portrait: "detective",
+    tag: "trenchcoat, breakfast",
+    problem: "The butler did it. And he knows that I know. It's been one whole week. We have breakfast together every morning. The eggs are excellent. The outside keeps raining. I cannot prove a thing.",
+    options: [
+      { code: "A1", name: "A Frying Pan",     glyph: "◎", kind: "correct",
+        reply: "DISPENSED. Cast iron. Still warm. You turn it over. You spot the monogram. You have your thread. The eggs, it turns out, were a distraction." },
+      { code: "B2", name: "Another Butler",   glyph: "🎩", kind: "funny",
+        reply: "DISPENSED. Now there are TWO butlers. One of them did it. You are back to square one." },
+      { code: "C3", name: "An Umbrella",      glyph: "☂", kind: "bad",
+        reply: "DISPENSED. Compact. Reliable. You step outside. The outside is still raining. The case is exactly where you left it. The butler waves from the window. At least you know the eggs tomorrow will also be excellent." },
+    ],
+  },
+  {
+    role: "ALIEN",
+    portrait: "alien",
+    tag: "observer, compromised",
+    problem: "Greetings. I have crash-landed. My mission was to observe and document human behaviour. It is now Day 5 since I arrived. I have unknowingly watched seventy-two hours of television. I think I cried at a dog video. I do not know who I am anymore. And why do Earth machines need battery?",
+    options: [
+      { code: "A1", name: "A Feelings Chart",       glyph: "◐", kind: "correct",
+        reply: "DISPENSED. Laminated, and Colour-coded. 55-page documented human emotions with helpful facial diagrams. You study it carefully. You recognise quite a number of emotions from the TV watching. But not all. More observation needs to be done. You do not leave... yet." },
+      { code: "B2", name: "Netflix Subscription",   glyph: "▶", kind: "funny",
+        reply: "DISPENSED. One full month. Your ship sits outside, fully operational. Since you had opinions about the third season, what better reason than to continue? You write up a strongly worded review. You are not going home... yet." },
+      { code: "C3", name: "A Battery Manual",       glyph: "▮▯", kind: "bad",
+        reply: "DISPENSED. 128 pages. Comprehensive. Covers everything from alkaline, lithium, nickel-cadmium, to even solar cells. Does not cover why humans adore dog videos. Does not explain the emotions and feelings you supposedly had. You read it anyway." },
+    ],
+  },
+  {
+    role: "DRAGON",
+    portrait: "dragon",
+    tag: "scaled, conflicted",
+    problem: "I'm trying to be a vegetarian. I read about it in a book. But the villagers keep LEAVING KNIGHTS OUTSIDE MY CAVE. It's rude.",
+    options: [
+      { code: "A1", name: "A Vegetable Garden", glyph: "❀", kind: "correct",
+        reply: "DISPENSED. Seeds, soil, and a small trowel. Sized for dragon claws. You plant it outside your cave. The villagers stop leaving knights. Instead, they start leaving unsolicited gardening advice. Still rude. But you have tomatoes now." },
+      { code: "B2", name: "Tofu Knight",        glyph: "▣", kind: "funny",
+        reply: "DISPENSED. It's a knight-shaped block of tofu. Marinated. Surprisingly satisfying." },
+      { code: "C3", name: "A Bib",              glyph: "◡", kind: "bad",
+        reply: "DISPENSED. Oversized. Embroidered in large colourful letters: \"BON APPÉTIT!\". Perfect for a baby dragon... wait, are you? Nonetheless, you fold it carefully and place it in your cave. Who knows?" },
+    ],
+  },
+  {
+    role: "SOLO INDIE DEV",
+    portrait: "dev",
+    tag: "caffeinated, blank",
+    problem: "The two-week jam ends in four days. I suddenly have an idea. And I have Cursor Pro. Yet I have been staring at a blank screen for two hours. Every entry seems to be on point.. wait why am I overthinking. What am I doing again?",
+    options: [
+      { code: "A1", name: "First Line of Code", glyph: "{ }", kind: "correct",
+        reply: "DISPENSED. You type the first line. Then another. And another. You realised the blank screen is gone. You are doing it. You were always going to." },
+      { code: "B2", name: "Designing the UI",   glyph: "▦", kind: "funny",
+        reply: "DISPENSED. Placement. Colour palette. Fonts. You have not written a single line of logic. You deliberate... Maybe this font is better. The coding will happen.. soon." },
+      { code: "C3", name: "Research Entries",   glyph: "☰", kind: "bad",
+        reply: "DISPENSED. You scroll through the entries. Everyone is so good. Someone even submitted on Day 1, wow! Five pages later, it hits you. Today is Day 11. Your screen is still blank. The research was very thorough though. Please start." },
+    ],
+  },
+];
+
+/* ===================== AUDIO ===================== */
+const Audio = (() => {
+  let ctx = null;
+  let master = null;
+  let humNodes = null;
+  let humOn = false;
+  let muted = false;
+
+  function ensure(){
+    if(ctx) return ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+    return ctx;
+  }
+
+  function resume(){
+    ensure();
+    if(ctx && ctx.state === "suspended") ctx.resume();
+  }
+
+  // Gentle mechanical hum: two slightly detuned low oscillators + filtered noise
+  function startHum(){
+    if(humOn || muted) return;
+    if(!ensure()) return;
+    const now = ctx.currentTime;
+
+    const hum = ctx.createGain();
+    hum.gain.value = 0;
+    hum.connect(master);
+    hum.gain.linearRampToValueAtTime(0.14, now + 1.2);
+
+    // Two low sines — faint beating
+    const o1 = ctx.createOscillator();
+    o1.type = "sine"; o1.frequency.value = 60;
+    const o2 = ctx.createOscillator();
+    o2.type = "sine"; o2.frequency.value = 60.7;
+
+    // Soft saw for electrical character
+    const o3 = ctx.createOscillator();
+    o3.type = "sawtooth"; o3.frequency.value = 120;
+    const o3g = ctx.createGain(); o3g.gain.value = 0.04;
+
+    // Lowpass all of it
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 320; lp.Q.value = 0.5;
+
+    // Subtle LFO wobble on gain
+    const lfo = ctx.createOscillator();
+    lfo.type = "sine"; lfo.frequency.value = 0.25;
+    const lfoGain = ctx.createGain(); lfoGain.gain.value = 0.02;
+    lfo.connect(lfoGain);
+    lfoGain.connect(hum.gain);
+
+    // Noise layer (filtered pink-ish)
+    const bufSize = ctx.sampleRate * 2;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let lastOut = 0;
+    for(let i=0;i<bufSize;i++){
+      const white = Math.random() * 2 - 1;
+      lastOut = (lastOut + 0.02 * white) / 1.02;
+      data[i] = lastOut * 3;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf; noise.loop = true;
+    const noiseGain = ctx.createGain(); noiseGain.gain.value = 0.025;
+    const noiseLp = ctx.createBiquadFilter();
+    noiseLp.type = "lowpass"; noiseLp.frequency.value = 600;
+
+    o1.connect(lp);
+    o2.connect(lp);
+    o3.connect(o3g).connect(lp);
+    lp.connect(hum);
+    noise.connect(noiseLp).connect(noiseGain).connect(hum);
+
+    o1.start(); o2.start(); o3.start(); lfo.start(); noise.start();
+    humNodes = { hum, o1, o2, o3, lfo, noise };
+    humOn = true;
+  }
+
+  function stopHum(){
+    if(!humOn || !humNodes) return;
+    const now = ctx.currentTime;
+    humNodes.hum.gain.cancelScheduledValues(now);
+    humNodes.hum.gain.linearRampToValueAtTime(0, now + 0.4);
+    const n = humNodes;
+    setTimeout(() => {
+      try{ n.o1.stop(); n.o2.stop(); n.o3.stop(); n.lfo.stop(); n.noise.stop(); }catch(e){}
+    }, 500);
+    humNodes = null;
+    humOn = false;
+  }
+
+  // Satisfying clunk: low thud + metallic tick + short noise burst
+  function clunk(){
+    if(muted) return;
+    if(!ensure()) return;
+    const t = ctx.currentTime;
+
+    // Thud: low sine pitch-down
+    const thud = ctx.createOscillator();
+    thud.type = "sine";
+    thud.frequency.setValueAtTime(180, t);
+    thud.frequency.exponentialRampToValueAtTime(55, t + 0.18);
+    const tg = ctx.createGain();
+    tg.gain.setValueAtTime(0.0001, t);
+    tg.gain.exponentialRampToValueAtTime(0.6, t + 0.01);
+    tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+    thud.connect(tg).connect(master);
+    thud.start(t); thud.stop(t + 0.3);
+
+    // Metallic tick: short high square through bandpass
+    const tick = ctx.createOscillator();
+    tick.type = "square"; tick.frequency.value = 1800;
+    const tkg = ctx.createGain();
+    tkg.gain.setValueAtTime(0.0001, t);
+    tkg.gain.exponentialRampToValueAtTime(0.18, t + 0.005);
+    tkg.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 2200; bp.Q.value = 6;
+    tick.connect(bp).connect(tkg).connect(master);
+    tick.start(t + 0.02); tick.stop(t + 0.12);
+
+    // Noise burst (impact)
+    const dur = 0.12;
+    const nbuf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+    const nd = nbuf.getChannelData(0);
+    for(let i=0;i<nd.length;i++) nd[i] = (Math.random()*2-1) * (1 - i/nd.length);
+    const ns = ctx.createBufferSource(); ns.buffer = nbuf;
+    const nlp = ctx.createBiquadFilter();
+    nlp.type = "lowpass"; nlp.frequency.value = 1200;
+    const ng = ctx.createGain(); ng.gain.value = 0.25;
+    ns.connect(nlp).connect(ng).connect(master);
+    ns.start(t);
+  }
+
+  // Generic tone helper: note array with frequencies and timings
+  function playNotes(notes, waveform = "triangle"){
+    if(muted) return;
+    if(!ensure()) return;
+    const t0 = ctx.currentTime;
+    notes.forEach(n => {
+      const o = ctx.createOscillator();
+      o.type = n.wave || waveform;
+      o.frequency.setValueAtTime(n.freq, t0 + n.t);
+      if(n.glide){
+        o.frequency.exponentialRampToValueAtTime(n.glide, t0 + n.t + n.dur);
+      }
+      const g = ctx.createGain();
+      const vol = n.vol ?? 0.22;
+      g.gain.setValueAtTime(0.0001, t0 + n.t);
+      g.gain.exponentialRampToValueAtTime(vol, t0 + n.t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + n.t + n.dur);
+      o.connect(g).connect(master);
+      o.start(t0 + n.t);
+      o.stop(t0 + n.t + n.dur + 0.05);
+    });
+  }
+
+  // Correct: bright ascending major arpeggio (C-E-G-C)
+  function correctTone(){
+    playNotes([
+      { freq: 523.25, t: 0.00, dur: 0.18, vol: 0.22 },
+      { freq: 659.25, t: 0.09, dur: 0.18, vol: 0.22 },
+      { freq: 783.99, t: 0.18, dur: 0.22, vol: 0.22 },
+      { freq: 1046.5, t: 0.30, dur: 0.45, vol: 0.22 },
+    ], "triangle");
+  }
+
+  // Funny: bouncy cartoon slide-whistle ("boing")
+  function funnyTone(){
+    playNotes([
+      { freq: 300, glide: 900, t: 0.00, dur: 0.18, vol: 0.20, wave: "sine" },
+      { freq: 900, glide: 260, t: 0.18, dur: 0.22, vol: 0.20, wave: "sine" },
+      { freq: 520, t: 0.42, dur: 0.16, vol: 0.18, wave: "triangle" },
+    ], "sine");
+  }
+
+  // Bad: low descending sad trombone
+  function badTone(){
+    playNotes([
+      { freq: 311.13, t: 0.00, dur: 0.24, vol: 0.22, wave: "sawtooth" },
+      { freq: 277.18, t: 0.22, dur: 0.24, vol: 0.22, wave: "sawtooth" },
+      { freq: 246.94, t: 0.44, dur: 0.28, vol: 0.22, wave: "sawtooth" },
+      { freq: 196.00, glide: 155, t: 0.70, dur: 0.55, vol: 0.22, wave: "sawtooth" },
+    ], "sawtooth");
+  }
+
+  function setMuted(v){
+    muted = v;
+    if(muted) stopHum();
+    else startHum();
+  }
+
+  return { resume, startHum, stopHum, clunk, correctTone, funnyTone, badTone, setMuted, isMuted: () => muted };
+})();
+
+/* ===================== PORTRAITS ===================== */
+const PORTRAITS = {
+  knight: `<div class="plume"></div><div class="helmet"></div><div class="rivet r1"></div><div class="rivet r2"></div><div class="visor"></div><div class="jaw"></div>`,
+  wizard: `<div class="hat"></div><div class="star"></div><div class="hat-brim"></div><div class="face"></div><div class="brow"></div><div class="p-eye"></div><div class="beard"></div>`,
+  idol: `<div class="hair"></div><div class="face"></div><div class="shades"></div><div class="lips"></div><div class="mic"></div>`,
+  pirate: `<div class="face"></div><div class="bandana"></div><div class="patch"></div><div class="p-eye"></div><div class="scar"></div><div class="beard"></div>`,
+  intern: `<div class="face"></div><div class="hair"></div><div class="p-eye e1"></div><div class="p-eye e2"></div><div class="bag1"></div><div class="bag2"></div><div class="mouth"></div><div class="lanyard"></div><div class="badge"></div>`,
+  ghost: `<div class="body"></div><div class="eye e1"></div><div class="eye e2"></div><div class="mouth"></div>`,
+  detective: `<div class="face"></div><div class="stubble"></div><div class="fedora-top"></div><div class="fedora-band"></div><div class="brim"></div><div class="p-eye"></div><div class="glass"></div><div class="collar-l"></div><div class="collar-r"></div>`,
+  alien: `<div class="head"></div><div class="antenna a1"></div><div class="antenna a2"></div><div class="eye e1"></div><div class="eye e2"></div><div class="mouth"></div><div class="neck"></div>`,
+  dragon: `<div class="head"></div><div class="horn"></div><div class="horn2"></div><div class="eye"></div><div class="snout"></div><div class="nostril"></div><div class="tooth"></div><div class="smoke"></div>`,
+  dev: `<div class="hood-inner"></div><div class="face"></div><div class="hoodie"></div><div class="glasses-l"></div><div class="glasses-r"></div><div class="bridge"></div><div class="mouth"></div><div class="laptop"><div class="screen"></div></div><div class="glow"></div>`,
+};
+
+/* ===================== STATE ===================== */
+const state = {
+  deck: [],
+  idx: 0,
+  correct: 0,
+  funny: 0,
+  bad: 0,
+  locked: false,
+};
+
+const $ = (s) => document.querySelector(s);
+const slotsEl = $("#slots");
+const speechEl = $("#speech");
+const charEl = $("#character");
+const charRole = $("#char-role");
+const charTag = $("#char-tag");
+const charPortrait = $("#char-portrait");
+const displayTxt = $("#display-txt");
+const chute = $("#chute");
+const result = $("#result");
+const resultBody = $("#result-body");
+const resultItem = $("#result-item");
+const resultPoints = $("#result-points");
+const verdictEl = $("#verdict");
+const nextBtn = $("#next-btn");
+const endcard = $("#endcard");
+
+function shuffled(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = (Math.random()*(i+1))|0;
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function setDisplay(text){
+  displayTxt.textContent = text;
+}
+
+function updateScoreboard(){
+  $("#sc-correct").textContent = state.correct;
+  $("#sc-funny").textContent = state.funny;
+  $("#sc-round").textContent = `${Math.min(state.idx+1, state.deck.length)}/${state.deck.length}`;
+}
+
+function renderRound(){
+  const scenario = state.deck[state.idx];
+  if(!scenario){ return endGame(); }
+
+  // Hide result, clear chute
+  result.classList.remove("show");
+  nextBtn.hidden = true;
+  chute.innerHTML = "";
+
+  // character
+  charEl.classList.remove("enter","leave");
+  void charEl.offsetWidth; // reflow
+  charEl.classList.add("enter");
+  charRole.textContent = scenario.role;
+  charTag.textContent = scenario.tag;
+  charPortrait.className = "portrait p-" + scenario.portrait;
+  charPortrait.innerHTML = PORTRAITS[scenario.portrait] || "";
+
+  // speech bubble
+  speechEl.classList.remove("show");
+  setTimeout(() => {
+    speechEl.textContent = `"${scenario.problem}"`;
+    speechEl.classList.add("show");
+  }, 300);
+
+  // slots — randomize order within the round
+  const opts = shuffled(scenario.options);
+  slotsEl.innerHTML = "";
+  opts.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.className = "slot";
+    btn.dataset.kind = opt.kind;
+    btn.dataset.idx = i;
+    btn.innerHTML = `
+      <div class="code">${opt.code}</div>
+      <div class="price">¢${25 + i*10}</div>
+      <div class="glyph">${opt.glyph}</div>
+      <div class="name">${opt.name}</div>
+    `;
+    btn.addEventListener("click", () => pick(opt, btn));
+    slotsEl.appendChild(btn);
+  });
+
+  setDisplay(`CUSTOMER #${state.idx+1} — AWAITING SELECTION…`);
+  state.locked = false;
+  updateScoreboard();
+}
+
+function pick(opt, btn){
+  if(state.locked) return;
+  state.locked = true;
+
+  // lock all slots
+  [...slotsEl.children].forEach(el => {
+    el.setAttribute("disabled","");
+    if(el === btn) el.classList.add("picked");
+  });
+
+  setDisplay(`DISPENSING ${opt.code}: ${opt.name.toUpperCase()}…`);
+  Audio.clunk();
+
+  // drop animation
+  const drop = document.createElement("div");
+  drop.className = "dropped drop";
+  drop.textContent = opt.glyph;
+  chute.appendChild(drop);
+
+  // after drop, show result
+  setTimeout(() => showResult(opt), 900);
+}
+
+function showResult(opt){
+  let points = 0;
+  let verdict = "BAD";
+  let vClass = "bad";
+  if(opt.kind === "correct"){ state.correct++; points = 10; verdict = "CORRECT"; vClass = "correct"; }
+  else if(opt.kind === "funny"){ state.funny++; points = 5;  verdict = "COMEDY"; vClass = "funny"; }
+  else { state.bad++; points = 1; verdict = "???"; vClass = "bad"; }
+
+  verdictEl.textContent = verdict;
+  verdictEl.className = "verdict " + vClass;
+  if(opt.kind === "correct") Audio.correctTone();
+  else if(opt.kind === "funny") Audio.funnyTone();
+  else Audio.badTone();
+  resultBody.textContent = opt.reply;
+  resultItem.textContent = opt.name;
+  resultPoints.innerHTML = `+<b>${points}</b> pts`;
+  result.classList.add("show");
+  setDisplay(`THANK YOU — HAVE A MYSTIFYING DAY.`);
+
+  updateScoreboard();
+
+  // character leaves
+  setTimeout(() => {
+    speechEl.classList.remove("show");
+    charEl.classList.remove("enter");
+    charEl.classList.add("leave");
+  }, 600);
+
+  nextBtn.hidden = false;
+  nextBtn.focus();
+}
+
+function nextRound(){
+  state.idx++;
+  if(state.idx >= state.deck.length){ endGame(); return; }
+  renderRound();
+}
+
+function endGame(){
+  $("#end-correct").textContent = state.correct;
+  $("#end-funny").textContent = state.funny;
+  const total = state.correct * 10 + state.funny * 5 + state.bad * 1;
+  let rank, title;
+  if(state.correct >= 8){ rank = "ARCHIVIST OF FATE"; title = "The machine nods approvingly."; }
+  else if(state.funny >= 6){ rank = "CHAOS CONCIERGE"; title = "The machine snickers, vending."; }
+  else if(state.correct + state.funny >= 7){ rank = "COMPETENT ORACLE"; title = "A solid shift. The light stays green."; }
+  else if(state.bad >= 6){ rank = "CURSED VENDOR"; title = "The machine sighs, mechanically."; }
+  else { rank = "APPRENTICE DISPENSER"; title = "The machine is neither pleased nor displeased."; }
+  $("#end-rank").innerHTML = `Rank: <b>${rank}</b> &nbsp;·&nbsp; ${total} pts`;
+  $("#end-title").textContent = title;
+  endcard.classList.add("show");
+  setDisplay("OUT OF ORDER — END OF SHIFT");
+}
+
+function startGame(){
+  state.deck = shuffled(SCENARIOS).slice(0, 10);
+  state.idx = 0;
+  state.correct = 0;
+  state.funny = 0;
+  state.bad = 0;
+  state.locked = false;
+  endcard.classList.remove("show");
+  renderRound();
+}
+
+/* ===================== EVENTS ===================== */
+nextBtn.addEventListener("click", nextRound);
+$("#reset").addEventListener("click", startGame);
+$("#play-again").addEventListener("click", startGame);
+
+// Start audio on first user interaction (browser autoplay policy)
+function firstInteract(){
+  Audio.resume();
+  Audio.startHum();
+  document.removeEventListener("pointerdown", firstInteract);
+  document.removeEventListener("keydown", firstInteract);
+}
+document.addEventListener("pointerdown", firstInteract);
+document.addEventListener("keydown", firstInteract);
+
+// Mute toggle
+const muteBtn = document.getElementById("mute-btn");
+if(muteBtn){
+  muteBtn.addEventListener("click", () => {
+    const next = !Audio.isMuted();
+    Audio.setMuted(next);
+    muteBtn.textContent = next ? "♪ Sound Off" : "♪ Sound On";
+    muteBtn.dataset.muted = next ? "1" : "0";
+  });
+}
+
+document.addEventListener("keydown", (e) => {
+  if(endcard.classList.contains("show")){
+    if(e.key === "Enter" || e.key.toLowerCase() === "n"){ startGame(); }
+    return;
+  }
+  if(["1","2","3"].includes(e.key) && !state.locked){
+    const btn = slotsEl.children[parseInt(e.key,10)-1];
+    if(btn) btn.click();
+  } else if(e.key.toLowerCase() === "n" && !nextBtn.hidden){
+    nextRound();
+  }
+});
+
+startGame();
+</script>
+</body>
+</html>
