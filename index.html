@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Vending Machine of Fate</title>
+<title>Vend Your Destiny</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -806,10 +806,10 @@
 
 <div class="stage">
   <header class="topbar">
-    <div class="logo">VENDING MACHINE <b>OF FATE</b> &nbsp;·&nbsp; v1.0</div>
+    <div class="logo">VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br><span style="font-size:9px;letter-spacing:.06em;color:var(--ink-2);font-weight:400">A DEUS EX MACHINA EXPERIENCE</span></div>
     <div class="scoreboard">
-      <div class="score-pill correct"><span class="k">Correct</span><span class="v" id="sc-correct">0</span></div>
-      <div class="score-pill funny"><span class="k">Comedy</span><span class="v" id="sc-funny">0</span></div>
+      <div class="score-pill correct"><span class="k">Destined</span><span class="v" id="sc-correct">0</span></div>
+      <div class="score-pill funny"><span class="k">Absurd</span><span class="v" id="sc-funny">0</span></div>
       <div class="score-pill"><span class="k">Round</span><span class="v" id="sc-round">0/10</span></div>
     </div>
   </header>
@@ -828,7 +828,7 @@
       <div class="machine">
         <div class="machine-head">
           <div><span class="dot"></span>READY</div>
-          <b>FATE-O-MATIC 3000</b>
+          <b>MACHINA-3000</b>
         </div>
         <div class="display"><span class="txt" id="display-txt">INSERT TOKEN… AWAITING CUSTOMER</span><span class="cursor"></span></div>
         <div class="slots" id="slots">
@@ -866,8 +866,8 @@
     <div class="sub">Shift Complete</div>
     <h2 id="end-title">The machine hums to sleep.</h2>
     <div class="tallies">
-      <div class="tally correct"><div class="k">Correct</div><div class="v" id="end-correct">0</div></div>
-      <div class="tally funny"><div class="k">Comedy</div><div class="v" id="end-funny">0</div></div>
+      <div class="tally correct"><div class="k">Destined</div><div class="v" id="end-correct">0</div></div>
+      <div class="tally funny"><div class="k">Absurd</div><div class="v" id="end-funny">0</div></div>
     </div>
     <div class="rank" id="end-rank">—</div>
     <button class="next-btn" id="play-again">Play Again</button>
@@ -1314,7 +1314,6 @@ function renderRound(){
     btn.dataset.kind = opt.kind;
     btn.dataset.idx = i;
     btn.innerHTML = `
-      <div class="code">${opt.code}</div>
       <div class="price">¢${25 + i*10}</div>
       <div class="glyph">${opt.glyph}</div>
       <div class="name">${opt.name}</div>
@@ -1338,7 +1337,7 @@ function pick(opt, btn){
     if(el === btn) el.classList.add("picked");
   });
 
-  setDisplay(`DISPENSING ${opt.code}: ${opt.name.toUpperCase()}…`);
+  setDisplay(`DISPENSING: ${opt.name.toUpperCase()}…`);
   Audio.clunk();
 
   // drop animation
@@ -1353,11 +1352,11 @@ function pick(opt, btn){
 
 function showResult(opt){
   let points = 0;
-  let verdict = "BAD";
+  let verdict = "MUNDANE";
   let vClass = "bad";
-  if(opt.kind === "correct"){ state.correct++; points = 10; verdict = "CORRECT"; vClass = "correct"; }
-  else if(opt.kind === "funny"){ state.funny++; points = 5;  verdict = "COMEDY"; vClass = "funny"; }
-  else { state.bad++; points = 1; verdict = "???"; vClass = "bad"; }
+  if(opt.kind === "correct"){ state.correct++; points = 10; verdict = "DESTINED"; vClass = "correct"; }
+  else if(opt.kind === "funny"){ state.funny++; points = 5;  verdict = "ABSURD"; vClass = "funny"; }
+  else { state.bad++; points = 1; verdict = "MUNDANE"; vClass = "bad"; }
 
   verdictEl.textContent = verdict;
   verdictEl.className = "verdict " + vClass;
