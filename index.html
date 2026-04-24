@@ -1898,10 +1898,14 @@ You are today's operator. 10 customers. 3 options each. Dispense wisely. Or don'
 
       // Wavedash SDK init
       if (window.Wavedash) {
-        window.Wavedash.init().catch(() => {});
+        window.Wavedash.init()
+          .catch(() => {})
+          .finally(() => {
+            showIntro();
+          });
+      } else {
+        showIntro();
       }
-
-      showIntro();
     </script>
   </body>
 </html>
