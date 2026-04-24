@@ -1,1097 +1,1800 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Vend Your Destiny</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: oklch(0.965 0.012 80);
-    --bg-2: oklch(0.94 0.018 80);
-    --ink: oklch(0.22 0.02 60);
-    --ink-2: oklch(0.42 0.015 60);
-    --line: oklch(0.82 0.015 70);
-    --accent: oklch(0.72 0.16 60);
-    --accent-deep: oklch(0.55 0.16 55);
-    --good: oklch(0.65 0.14 150);
-    --absurd: oklch(0.72 0.16 60);
-    --mundane: oklch(0.6 0.16 25);
-    --display: 'Space Grotesk', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', ui-monospace, monospace;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--display);}
-  body{
-    min-height:100vh;
-    background:
-      radial-gradient(ellipse at 50% -20%, oklch(0.92 0.03 70) 0%, transparent 55%),
-      repeating-linear-gradient(0deg, transparent 0 39px, oklch(0.9 0.015 70 / .35) 39px 40px),
-      var(--bg);
-    overflow-x:hidden;
-  }
-
-  /* ================= LAYOUT ================= */
-  .stage{
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 28px 28px 60px;
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
-  header.topbar{
-    display:flex; justify-content:space-between; align-items:center;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 14px;
-  }
-  .logo{
-    font-family:var(--mono); font-weight:600; letter-spacing:.02em;
-    font-size:12px; text-transform:uppercase; color:var(--ink-2);
-  }
-  .logo b{color:var(--ink); font-weight:600}
-  .scoreboard{
-    display:flex; gap:18px;
-    font-family:var(--mono); font-size:12px;
-  }
-  .score-pill{
-    display:flex; align-items:baseline; gap:8px;
-    padding: 7px 12px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--bg-2);
-  }
-  .score-pill .k{ color:var(--ink-2); text-transform:uppercase; letter-spacing:.08em; font-size:10px }
-  .score-pill .v{ font-weight:600; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums }
-  .score-pill.destined .v{ color: var(--good) }
-  .score-pill.absurd .v{ color: var(--absurd) }
-  .score-pill.mundane .v{ color: var(--mundane) }
-
-  /* ================= SCENE ================= */
-  .scene{
-    display:grid;
-    grid-template-columns: 1fr 460px 1fr;
-    align-items:end;
-    gap: 24px;
-    min-height: 560px;
-    position:relative;
-  }
-  .scene::after{
-    content:"";
-    position:absolute; left:0; right:0; bottom:0; height:1px;
-    background: var(--line);
-  }
-
-  /* ================= CHARACTER ================= */
-  .character-col{
-    display:flex; flex-direction:column; align-items:flex-start; gap:12px;
-    padding-bottom: 18px;
-    min-height: 420px;
-    justify-content:flex-end;
-  }
-  .speech{
-    position:relative;
-    background: #fff;
-    border: 1px solid var(--ink);
-    border-radius: 14px;
-    padding: 16px 18px;
-    max-width: 340px;
-    box-shadow: 4px 4px 0 var(--ink);
-    font-size: 17px;
-    line-height: 1.35;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity .4s ease, transform .4s ease;
-  }
-  .speech.show{ opacity:1; transform: translateY(0) }
-  .speech::after{
-    content:"";
-    position:absolute; left:38px; bottom:-10px;
-    width:18px; height:18px; background:#fff;
-    border-right:1px solid var(--ink);
-    border-bottom:1px solid var(--ink);
-    transform: rotate(45deg);
-    box-shadow: 2px 2px 0 var(--ink);
-  }
-  .character{
-    width: 200px; height: 300px;
-    background: var(--bg-2);
-    border: 1px solid var(--ink);
-    border-radius: 6px;
-    display:flex; flex-direction:column; justify-content:center; align-items:center;
-    gap: 6px;
-    padding: 10px;
-    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
-    text-align:center;
-    box-shadow: 4px 4px 0 var(--ink);
-    position:relative;
-    overflow: hidden;
-    transition: transform .5s cubic-bezier(.2,.9,.3,1.2), opacity .4s;
-  }
-  .character::before{
-    content:""; position:absolute; inset:0;
-    background: repeating-linear-gradient(-45deg, transparent 0 10px, oklch(0.88 0.02 70 / .35) 10px 11px);
-    pointer-events:none;
-  }
-  .character .role, .character .tag{ position:relative; z-index:2 }
-
-  /* ========== PORTRAITS ========== */
-  .portrait{
-    position: relative;
-    z-index: 2;
-    width: 150px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .portrait img{
-    width: 100%; height: auto;
-    object-fit: contain;
-    display: block;
-  }
-
-  .character .role{
-    font-weight:600; color:var(--ink);
-    font-size: 13px; letter-spacing:.02em;
-    margin-bottom:4px;
-  }
-  .character .tag{
-    border:1px solid var(--line); background:#fff;
-    padding: 3px 8px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing:.08em; font-size:9px;
-  }
-  .character.enter{ animation: walk-in .7s ease-out }
-  .character.leave{ animation: walk-out .6s ease-in forwards }
-  @keyframes walk-in{
-    0%{ transform: translateX(-120%) rotate(-3deg); opacity:0 }
-    40%{ opacity: 1 }
-    60%{ transform: translateX(6%) rotate(1deg); opacity:1 }
-    100%{ transform: translateX(0) rotate(0); opacity:1 }
-  }
-  @keyframes walk-out{
-    0%{ transform: translateX(0); opacity:1 }
-    100%{ transform: translateX(-160%) rotate(-5deg); opacity:0 }
-  }
-
-  /* ================= VENDING MACHINE ================= */
-  .machine-col{ display:flex; justify-content:center; align-items:end; padding-bottom: 18px }
-  .machine{
-    width: 440px;
-    background: linear-gradient(180deg, oklch(0.55 0.16 55) 0%, oklch(0.48 0.17 50) 100%);
-    border: 2px solid var(--ink);
-    border-radius: 18px 18px 8px 8px;
-    padding: 18px;
-    box-shadow: 8px 8px 0 var(--ink), inset 0 2px 0 rgba(255,255,255,.15);
-    position:relative;
-  }
-  .machine-head{
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom: 14px;
-    color: #fff;
-    font-family: var(--mono); font-size: 11px; letter-spacing:.12em; text-transform:uppercase;
-  }
-  .machine-head b{ font-weight:600 }
-  .machine-head .dot{
-    display:inline-block; width:8px; height:8px; border-radius:50%;
-    background: var(--good); margin-right:6px;
-    box-shadow: 0 0 8px var(--good);
-    animation: blink 1.6s ease-in-out infinite;
-  }
-  @keyframes blink{ 50%{ opacity:.3 } }
-
-  .display{
-    background: oklch(0.2 0.02 60);
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    padding: 10px 14px;
-    color: oklch(0.85 0.14 120);
-    font-family: var(--mono); font-size: 12px;
-    min-height: 44px;
-    display:flex; align-items:center;
-    margin-bottom: 14px;
-    text-shadow: 0 0 6px oklch(0.75 0.2 130 / .6);
-    overflow:hidden;
-  }
-  .display .txt{ display:inline-block }
-  .display .cursor{
-    display:inline-block; width:8px; height:14px; background: oklch(0.85 0.14 120);
-    margin-left:4px; vertical-align:-2px;
-    animation: blink 1s steps(2) infinite;
-  }
-
-  .slots{
-    display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-    background: oklch(0.3 0.03 60);
-    border: 2px solid var(--ink);
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 14px;
-  }
-  .slot{
-    aspect-ratio: 3/4;
-    background: linear-gradient(180deg, oklch(0.97 0.01 80) 0%, oklch(0.9 0.015 80) 100%);
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding: 10px 8px;
-    cursor: pointer;
-    position:relative;
-    transition: transform .12s ease, box-shadow .12s ease;
-    text-align:center;
-    overflow:hidden;
-  }
-  .slot:hover:not([disabled]){
-    transform: translateY(-2px);
-    box-shadow: 0 4px 0 oklch(0.3 0.03 60);
-  }
-  .slot:active:not([disabled]){ transform: translateY(0) }
-  .slot[disabled]{ cursor: not-allowed; opacity:.55 }
-  .slot .code{
-    position:absolute; top:6px; left:8px;
-    font-family: var(--mono); font-size: 10px; color: var(--ink-2);
-    letter-spacing:.08em;
-  }
-  .slot .price{
-    position:absolute; top:6px; right:8px;
-    font-family: var(--mono); font-size: 10px; color: var(--accent-deep);
-    font-weight:600;
-  }
-  .slot .glyph{
-    width: 54px; height: 54px;
-    border: 1.5px solid var(--ink);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    margin-top: 10px;
-    background:
-      repeating-linear-gradient(45deg, transparent 0 6px, oklch(0.88 0.02 70 / .7) 6px 7px),
-      #fff;
-    display:flex; align-items:center; justify-content:center;
-    font-size: 24px;
-    font-family: var(--display);
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .slot .name{
-    font-family: var(--mono); font-size: 11px;
-    color: var(--ink); font-weight: 500;
-    line-height: 1.2;
-    text-transform: uppercase; letter-spacing:.04em;
-  }
-  .slot.picked{
-    box-shadow: inset 0 0 0 3px var(--accent);
-  }
-
-  .chute{
-    background: oklch(0.25 0.02 60);
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    height: 72px;
-    position:relative;
-    overflow:hidden;
-    box-shadow: inset 0 4px 10px rgba(0,0,0,.4);
-  }
-  .chute::before{
-    content: "DISPENSE";
-    position:absolute; top:6px; left:10px;
-    font-family:var(--mono); font-size:10px; letter-spacing:.14em;
-    color: oklch(0.6 0.02 60);
-  }
-  .dropped{
-    position:absolute;
-    left:50%; top:-60px;
-    transform: translateX(-50%);
-    width: 56px; height: 56px;
-    background: #fff;
-    border: 1.5px solid var(--ink);
-    border-radius: 8px;
-    display:flex; align-items:center; justify-content:center;
-    font-family: var(--display); font-weight:600; font-size: 22px;
-    box-shadow: 2px 2px 0 rgba(0,0,0,.3);
-  }
-  .dropped.drop{ animation: drop 1s cubic-bezier(.5,.1,.4,1) forwards }
-  @keyframes drop{
-    0%{ top:-60px; transform: translateX(-50%) rotate(0) }
-    70%{ top: 18px; transform: translateX(-50%) rotate(12deg) }
-    85%{ top: 14px; transform: translateX(-50%) rotate(-6deg) }
-    100%{ top: 16px; transform: translateX(-50%) rotate(0) }
-  }
-
-  /* ================= RESULT PANEL ================= */
-  .result-col{
-    display:flex; flex-direction:column; align-items:flex-end; gap: 10px;
-    padding-bottom: 18px;
-    min-height: 420px;
-    justify-content:flex-end;
-  }
-  .result-card{
-    width: 320px;
-    background: var(--bg-2);
-    border: 1px solid var(--ink);
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 4px 4px 0 var(--ink);
-    opacity: 0; transform: translateY(8px);
-    transition: opacity .4s, transform .4s;
-    font-size: 14px;
-  }
-  .result-card.show{ opacity:1; transform: translateY(0) }
-  .result-head{
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom: 10px;
-    font-family: var(--mono); font-size: 10px; letter-spacing:.12em; text-transform:uppercase;
-    color: var(--ink-2);
-  }
-  .verdict{
-    padding: 2px 8px; border-radius: 4px;
-    border: 1px solid currentColor;
-    font-weight: 600;
-  }
-  .verdict.destined{ color: var(--good) }
-  .verdict.absurd{ color: var(--absurd) }
-  .verdict.mundane{ color: var(--mundane) }
-  .result-body{
-    font-family: var(--display); font-size: 15px; line-height: 1.4;
-    color: var(--ink);
-  }
-  .result-meta{
-    margin-top: 10px; padding-top:10px;
-    border-top: 1px dashed var(--line);
-    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
-    display:flex; justify-content:space-between;
-  }
-  .result-meta b{ color: var(--ink); font-weight:600 }
-
-  .next-btn{
-    font-family: var(--mono); font-size: 12px; letter-spacing:.08em;
-    text-transform:uppercase;
-    background: var(--ink); color: var(--bg);
-    border: 1px solid var(--ink);
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 3px 3px 0 var(--accent-deep);
-    transition: transform .1s;
-  }
-  .next-btn:hover{ transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--accent-deep) }
-  .next-btn:active{ transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--accent-deep) }
-  .next-btn[hidden]{ display:none }
-
-  /* ================= FOOTER ================= */
-  .footer{
-    display:flex; justify-content:space-between; align-items:center;
-    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
-    padding-top: 8px;
-    letter-spacing:.06em;
-  }
-  .footer .hint kbd{
-    font-family: var(--mono);
-    background: #fff; border: 1px solid var(--line);
-    padding: 1px 6px; border-radius: 3px; font-size:10px;
-    margin: 0 2px;
-  }
-  .reset{
-    background:none; border:none; cursor:pointer;
-    font-family: var(--mono); font-size:11px; color: var(--ink-2);
-    text-transform:uppercase; letter-spacing:.08em;
-    text-decoration: underline;
-  }
-  .reset:hover{ color: var(--ink) }
-  .footer button.reset + button.reset{ margin-left: 12px }
-  #mute-btn[data-muted="1"]{ color: var(--mundane) }
-
-  /* ================= END SCREEN ================= */
-  .endcard{
-    position: fixed; inset:0;
-    background: oklch(0.22 0.02 60 / .9);
-    display:none; align-items:center; justify-content:center;
-    z-index: 10;
-    backdrop-filter: blur(4px);
-  }
-  .endcard.show{ display:flex }
-  .endcard .inner{
-    background: var(--bg);
-    border: 2px solid var(--ink);
-    border-radius: 18px;
-    padding: 32px;
-    width: 440px;
-    text-align:center;
-    box-shadow: 8px 8px 0 var(--accent-deep);
-  }
-  .endcard h2{
-    font-family: var(--display); font-size: 28px; margin: 0 0 8px;
-  }
-  .endcard .flavour{ font-family:var(--mono); font-size:12px; color:var(--ink-2); margin: 0 0 20px; letter-spacing:.04em; }
-  .endcard .tallies{
-    display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px;
-  }
-  .tally{
-    border:1px solid var(--ink); border-radius: 10px; padding: 14px;
-    background: var(--bg-2);
-  }
-  .tally .k{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-2) }
-  .tally .v{ font-family:var(--display); font-size: 32px; font-weight:600; font-variant-numeric:tabular-nums }
-  .tally.destined .v{ color: var(--good) }
-  .tally.absurd .v{ color: var(--absurd) }
-  .tally.mundane .v{ color: var(--mundane) }
-
-  /* ================= INTRO OVERLAY ================= */
-  .intro-overlay{
-    position:fixed; inset:0;
-    background:
-      radial-gradient(ellipse at 50% -20%, oklch(0.92 0.03 70) 0%, transparent 55%),
-      repeating-linear-gradient(0deg, transparent 0 39px, oklch(0.9 0.015 70 / .35) 39px 40px),
-      var(--bg);
-    display:flex; align-items:center; justify-content:center;
-    z-index:100;
-    padding:24px;
-  }
-  .intro-overlay.hidden{ display:none }
-  .intro-inner{
-    max-width:680px; width:100%;
-    display:flex; flex-direction:column; gap:24px;
-    align-items:center;
-  }
-  .intro-crt{
-    width:100%;
-    background:
-      repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 1px, transparent 1px 3px),
-      oklch(0.18 0.02 60);
-    border:2px solid var(--ink);
-    border-radius:8px;
-    padding:20px 24px;
-    color: oklch(0.85 0.14 120);
-    font-family:var(--mono); font-size:13px; line-height:1.8;
-    min-height:240px;
-    text-shadow:0 0 6px oklch(0.75 0.2 130 / .6);
-    white-space:pre-wrap;
-    box-shadow: 6px 6px 0 var(--ink);
-  }
-  .intro-crt-header{
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:16px;
-    font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-  }
-  .intro-crt-header .dot{
-    display:inline-block; width:8px; height:8px; border-radius:50%;
-    background: var(--good); margin-right:6px;
-    box-shadow: 0 0 8px var(--good);
-    animation: blink 1.6s ease-in-out infinite;
-  }
-
-  /* Tiny screens */
-  @media (max-width: 980px){
-    .scene{ grid-template-columns: 1fr; }
-    .character-col, .result-col{ align-items:center; min-height: auto }
-    .machine{ width: 100% }
-  }
-</style>
-</head>
-<body>
-
-<div class="intro-overlay" id="intro-overlay">
-  <div class="intro-inner">
-    <div class="logo" style="text-align:center">VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br><span style="font-size:9px;letter-spacing:.06em;color:var(--ink-2);font-weight:400">A DEUS EX MACHINA EXPERIENCE</span></div>
-    <div class="intro-crt">
-      <div class="intro-crt-header">
-        <div><span class="dot"></span>BOOT SEQUENCE</div>
-        <b>MACHINA-3000</b>
-      </div>
-      <span id="intro-text"></span><span class="cursor" id="intro-cursor"></span>
-    </div>
-    <button class="next-btn" id="insert-token-btn" hidden>INSERT TOKEN →</button>
-  </div>
-</div>
-
-<div class="stage">
-  <header class="topbar">
-    <div class="logo">VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br><span style="font-size:9px;letter-spacing:.06em;color:var(--ink-2);font-weight:400">A DEUS EX MACHINA EXPERIENCE</span></div>
-    <div class="scoreboard">
-      <div class="score-pill destined"><span class="k">Destined</span><span class="v" id="sc-destined">0</span></div>
-      <div class="score-pill absurd"><span class="k">Absurd</span><span class="v" id="sc-absurd">0</span></div>
-      <div class="score-pill mundane"><span class="k">Mundane</span><span class="v" id="sc-mundane">0</span></div>
-      <div class="score-pill"><span class="k">Round</span><span class="v" id="sc-round">0/10</span></div>
-    </div>
-  </header>
-
-  <main class="scene">
-    <div class="character-col">
-      <div class="speech" id="speech">...</div>
-      <div class="character" id="character">
-        <div class="portrait" id="char-portrait"></div>
-        <div class="role" id="char-role">CUSTOMER</div>
-        <div class="tag" id="char-tag">placeholder portrait</div>
-      </div>
-    </div>
-
-    <div class="machine-col">
-      <div class="machine">
-        <div class="machine-head">
-          <div><span class="dot"></span>READY</div>
-          <b>MACHINA-3000</b>
-        </div>
-        <div class="display"><span class="txt" id="display-txt">INSERT TOKEN… AWAITING CUSTOMER</span><span class="cursor"></span></div>
-        <div class="slots" id="slots">
-          <!-- filled by JS -->
-        </div>
-        <div class="chute" id="chute"></div>
-      </div>
-    </div>
-
-    <div class="result-col">
-      <div class="result-card" id="result">
-        <div class="result-head">
-          <span>TRANSACTION LOG</span>
-          <span class="verdict" id="verdict">—</span>
-        </div>
-        <div class="result-body" id="result-body">Awaiting dispense…</div>
-        <div class="result-meta">
-          <span>ITEM: <b id="result-item">—</b></span>
-          <span id="result-points">+0</span>
-        </div>
-      </div>
-      <button class="next-btn" id="next-btn" hidden>Next Customer →</button>
-    </div>
-  </main>
-
-  <footer class="footer">
-    <div class="hint">CLICK a slot to dispense. <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> to pick, <kbd>N</kbd> for next.</div>
-    <button class="reset" id="mute-btn" data-muted="0">♪ Sound On</button>
-    <button class="reset" id="reset">Reset Game</button>
-  </footer>
-</div>
-
-<div class="endcard" id="endcard">
-  <div class="inner">
-    <h2 id="end-rank">—</h2>
-    <p class="flavour" id="end-title">The machine hums to sleep.</p>
-    <div class="tallies">
-      <div class="tally destined"><div class="k">Destined</div><div class="v" id="end-destined">0</div></div>
-      <div class="tally absurd"><div class="k">Absurd</div><div class="v" id="end-absurd">0</div></div>
-      <div class="tally mundane"><div class="k">Mundane</div><div class="v" id="end-mundane">0</div></div>
-    </div>
-    <button class="next-btn" id="play-again">Play Again</button>
-  </div>
-</div>
-
-<script>
-/* ===================== DATA ===================== */
-const SCENARIOS = [
-  {
-    role: "KNIGHT",
-    portrait: "knight",
-    tag: "armored, unmoved",
-    problem: "I have faced a thousand battles. I have never lost. Today I feel... nothing. The dragons arrive at noon.",
-    options: [
-      { code: "A1", name: "A Worthy Opponent", glyph: "✕", kind: "destined",
-        reply: "DISPENSED. Arrives immediately. Turns out it's you, six years ago. The fight takes all morning. You feel everything again." },
-      { code: "B2", name: "Manchet",           glyph: "▭", kind: "absurd",
-        reply: "DISPENSED. The lord's bread. Soft, white, deeply inappropriate. You eat it slowly. It is the best thing you have ever tasted. The dragons can wait." },
-      { code: "C3", name: "Motivational Poster", glyph: "✦", kind: "mundane",
-        reply: "DISPENSED. Illuminated manuscript. Hand-lettered. Says \"Persevere.\" You stare at it for eleven minutes. The dragons arrive. You are still reading." },
-    ],
-  },
-  {
-    role: "WIZARD",
-    portrait: "wizard",
-    tag: "robes, distracted",
-    problem: "I have studied the arcane arts for forty years, crossed dimensions, and even seen the void look back. Yet, the only thing in my head right now before an impending duel is how to make perfect toast.",
-    options: [
-      { code: "A1", name: "The Void, Toasted", glyph: "◼", kind: "destined",
-        reply: "DISPENSED. A single slice. Burnt at the edges, warm in the middle. You understand suddenly that the void was always hungry too. You sit down together. You share breakfast. The duel can wait." },
-      { code: "B2", name: "Toaster 3000",      glyph: "▯▯", kind: "absurd",
-        reply: "DISPENSED. You arrive at the duel. You make toast. It is transcendent. Your opponent eats a slice. He concedes. Nobody fully understands what happened." },
-      { code: "C3", name: "A Bread Recipe",    glyph: "✎", kind: "mundane",
-        reply: "DISPENSED. Handwritten. Laminated. The machine is very proud of it. You do not have the ingredients. You do not have the time. It is, however, a great recipe." },
-    ],
-  },
-  {
-    role: "K-POP IDOL",
-    portrait: "idol",
-    tag: "sleepless, trending",
-    problem: "During a live stream I said 'I wish I could sleep for a hundred years.' My anti-fans clipped it. Now the headline reads: IDOL ABANDONS FANS. My comeback is in three days.",
-    options: [
-      { code: "A1", name: "A Good Night's Sleep", glyph: "☾", kind: "destined",
-        reply: "DISPENSED. Eight hours. No notifications. No algorithms. You wake up and the internet has moved on to something else entirely. It always does. Your comeback is still in three days. You are ready." },
-      { code: "B2", name: "Snorlax Standee",      glyph: "▓", kind: "absurd",
-        reply: "DISPENSED. Fans place it outside your agency building overnight. By morning #IdolSleepsHard is trending. Your fandom has rebranded your scandal into a personality trait. Somehow this works." },
-      { code: "C3", name: "Royal Sleep Kit",      glyph: "♛", kind: "mundane",
-        reply: "DISPENSED. The machine meant well. You are now in a tower. Your comeback has been rescheduled by approximately one hundred years. Your anti-fans are also asleep. Small mercies." },
-    ],
-  },
-  {
-    role: "PIRATE",
-    portrait: "pirate",
-    tag: "saltworn, grieving",
-    problem: "Me ship is gone. Took thirty years to build her. She knew every current, every wind. The crew can find another captain. But I am nothing without her.",
-    options: [
-      { code: "A1", name: "The First Plank",   glyph: "▬", kind: "destined",
-        reply: "DISPENSED. Worn. Salt-bleached. From before she had a name. You hold it for a long time. Then you find a forest. Then you find an axe. You know what comes next." },
-      { code: "B2", name: "Ship in a Bottle",  glyph: "▲", kind: "absurd",
-        reply: "DISPENSED. One ship. Fully rigged. Approximately four inches long. It is exquisite. You hold it up to the light for a very long time. The crew watches in silence. Nobody knows what to say." },
-      { code: "C3", name: "A Future Ship",     glyph: "◈", kind: "mundane",
-        reply: "DISPENSED. You are now in the future. Piracy still exists. It involves a laptop and a VPN. You do not like it here. You do not understand any of this. The ocean is right outside but somehow unreachable." },
-    ],
-  },
-  {
-    role: "INTERN",
-    portrait: "intern",
-    tag: "lanyard, fluorescent light",
-    problem: "I hit 'reply-all' on the CEO's email. It's 9:02 AM. I am considering the ocean.",
-    options: [
-      { code: "A1", name: "Radical Transparency", glyph: "✉", kind: "destined",
-        reply: "DISPENSED. You send one more email. Subject line: My Sincere Apologies. No filter. Just exactly what happened and exactly how you feel about it. The CEO replies in four minutes; \"All good.\" You are going to be fine." },
-      { code: "B2", name: "A Second Reply-All",   glyph: "!!", kind: "absurd",
-        reply: "DISPENSED. You don't know what came over you. Neither does anyone else. By 9:45 AM there is a Slack thread, a meme, and three people who say it's the best thing that's ever happened at this company. HR is still processing." },
-      { code: "C3", name: "A Coffee",             glyph: "∪", kind: "mundane",
-        reply: "DISPENSED. Hot. Black. The machine's answer to everything. It does not unsend the email. It does not explain anything. It is, however, a very good coffee. You stare at the wall and drink it slowly." },
-    ],
-  },
-  {
-    role: "GHOST",
-    portrait: "ghost",
-    tag: "translucent, invited",
-    problem: "I've haunted this attic for 400 years. Seventeen families. I know every creak, every secret, every name. The current owner just invited me to brunch. I don't know how to be scary anymore. Why am I trying to be scary even?",
-    options: [
-      { code: "A1", name: "A Memory",         glyph: "◉", kind: "destined",
-        reply: "DISPENSED. A memory. Yours. 1624. You refused to leave because nobody asked you to. Then nobody ever did. Seventeen families. Four hundred years. You didn't haunt this house. You lived in it. Go to brunch." },
-      { code: "B2", name: "A Welcome Mat",    glyph: "▭", kind: "absurd",
-        reply: "DISPENSED. Coir. Printed. It says \"STILL HERE\" in friendly letters. You place it outside the attic door. The current owner adds a small plant next to it. You have feelings about this." },
-      { code: "C3", name: "A Bedsheet",       glyph: "◇", kind: "mundane",
-        reply: "DISPENSED. White. Two eye holes. You hold it for a long time... Did the machine just insult you? You put it back. Nobody speaks of this..!" },
-    ],
-  },
-  {
-    role: "DETECTIVE",
-    portrait: "detective",
-    tag: "trenchcoat, breakfast",
-    problem: "The butler did it. And he knows that I know. It's been one whole week. We have breakfast together every morning. The eggs are excellent. The outside keeps raining. I cannot prove a thing.",
-    options: [
-      { code: "A1", name: "A Frying Pan",     glyph: "◎", kind: "destined",
-        reply: "DISPENSED. Cast iron. Still warm. You turn it over. You spot the monogram. You have your thread. The eggs, it turns out, were a distraction." },
-      { code: "B2", name: "Another Butler",   glyph: "∩", kind: "absurd",
-        reply: "DISPENSED. Now there are TWO butlers. One of them did it. You are back to square one." },
-      { code: "C3", name: "An Umbrella",      glyph: "☂", kind: "mundane",
-        reply: "DISPENSED. Compact. Reliable. You step outside. The outside is still raining. The case is exactly where you left it. The butler waves from the window. At least you know the eggs tomorrow will also be excellent." },
-    ],
-  },
-  {
-    role: "ALIEN",
-    portrait: "alien",
-    tag: "observer, compromised",
-    problem: "Greetings. I have crash-landed. My mission was to observe and document human behaviour. It is now Day 5 since I arrived. I have unknowingly watched seventy-two hours of television. I think I cried at a dog video. I do not know who I am anymore. And why do Earth machines need battery?",
-    options: [
-      { code: "A1", name: "A Feelings Chart",       glyph: "◐", kind: "destined",
-        reply: "DISPENSED. Laminated, and Colour-coded. 55-page documented human emotions with helpful facial diagrams. You study it carefully. You recognise quite a number of emotions from the TV watching. But not all. More observation needs to be done. You do not leave... yet." },
-      { code: "B2", name: "Netflix Subscription",   glyph: "▶", kind: "absurd",
-        reply: "DISPENSED. One full month. Your ship sits outside, fully operational. Since you had opinions about the third season, what better reason than to continue? You write up a strongly worded review. You are not going home... yet." },
-      { code: "C3", name: "A Battery Manual",       glyph: "▮▯", kind: "mundane",
-        reply: "DISPENSED. 128 pages. Comprehensive. Covers everything from alkaline, lithium, nickel-cadmium, to even solar cells. Does not cover why humans adore dog videos. Does not explain the emotions and feelings you supposedly had. You read it anyway." },
-    ],
-  },
-  {
-    role: "DRAGON",
-    portrait: "dragon",
-    tag: "scaled, conflicted",
-    problem: "I'm trying to be a vegetarian. I read about it in a book. But the villagers keep LEAVING KNIGHTS OUTSIDE MY CAVE. It's rude.",
-    options: [
-      { code: "A1", name: "A Vegetable Garden", glyph: "❀", kind: "destined",
-        reply: "DISPENSED. Seeds, soil, and a small trowel. Sized for dragon claws. You plant it outside your cave. The villagers stop leaving knights. Instead, they start leaving unsolicited gardening advice. Still rude. But you have tomatoes now." },
-      { code: "B2", name: "Tofu Knight",        glyph: "▣", kind: "absurd",
-        reply: "DISPENSED. It's a knight-shaped block of tofu. Marinated. Surprisingly satisfying." },
-      { code: "C3", name: "A Bib",              glyph: "◡", kind: "mundane",
-        reply: "DISPENSED. Oversized. Embroidered in large colourful letters: \"BON APPÉTIT!\". Perfect for a baby dragon... wait, are you? Nonetheless, you fold it carefully and place it in your cave. Who knows?" },
-    ],
-  },
-  {
-    role: "SOLO INDIE DEV",
-    portrait: "dev",
-    tag: "caffeinated, blank",
-    problem: "The two-week jam ends in four days. I suddenly have an idea. And I have Cursor Pro. Yet I have been staring at a blank screen for two hours. Every entry seems to be on point.. wait why am I overthinking. What am I doing again?",
-    options: [
-      { code: "A1", name: "First Line of Code", glyph: "{ }", kind: "destined",
-        reply: "DISPENSED. You type the first line. Then another. And another. You realised the blank screen is gone. You are doing it. You were always going to." },
-      { code: "B2", name: "Designing the UI",   glyph: "▦", kind: "absurd",
-        reply: "DISPENSED. Placement. Colour palette. Fonts. You have not written a single line of logic. You deliberate... Maybe this font is better. The coding will happen.. soon." },
-      { code: "C3", name: "Research Entries",   glyph: "☰", kind: "mundane",
-        reply: "DISPENSED. You scroll through the entries. Everyone is so good. Someone even submitted on Day 1, wow! Five pages later, it hits you. Today is Day 11. Your screen is still blank. The research was very thorough though. Please start." },
-    ],
-  },
-];
-
-/* ===================== AUDIO ===================== */
-const Audio = (() => {
-  let ctx = null;
-  let master = null;
-  let humNodes = null;
-  let humOn = false;
-  let muted = false;
-
-  function ensure(){
-    if(ctx) return ctx;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return null;
-    ctx = new AC();
-    master = ctx.createGain();
-    master.gain.value = 0.5;
-    master.connect(ctx.destination);
-    return ctx;
-  }
-
-  function resume(){
-    ensure();
-    if(ctx && ctx.state === "suspended") ctx.resume();
-  }
-
-  // Gentle mechanical hum: two slightly detuned low oscillators + filtered noise
-  function startHum(){
-    if(humOn || muted) return;
-    if(!ensure()) return;
-    const now = ctx.currentTime;
-
-    const hum = ctx.createGain();
-    hum.gain.value = 0;
-    hum.connect(master);
-    hum.gain.linearRampToValueAtTime(0.14, now + 1.2);
-
-    // Two low sines — faint beating
-    const o1 = ctx.createOscillator();
-    o1.type = "sine"; o1.frequency.value = 60;
-    const o2 = ctx.createOscillator();
-    o2.type = "sine"; o2.frequency.value = 60.7;
-
-    // Soft saw for electrical character
-    const o3 = ctx.createOscillator();
-    o3.type = "sawtooth"; o3.frequency.value = 120;
-    const o3g = ctx.createGain(); o3g.gain.value = 0.04;
-
-    // Lowpass all of it
-    const lp = ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 320; lp.Q.value = 0.5;
-
-    // Subtle LFO wobble on gain
-    const lfo = ctx.createOscillator();
-    lfo.type = "sine"; lfo.frequency.value = 0.25;
-    const lfoGain = ctx.createGain(); lfoGain.gain.value = 0.02;
-    lfo.connect(lfoGain);
-    lfoGain.connect(hum.gain);
-
-    // Noise layer (filtered pink-ish)
-    const bufSize = ctx.sampleRate * 2;
-    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    let lastOut = 0;
-    for(let i=0;i<bufSize;i++){
-      const white = Math.random() * 2 - 1;
-      lastOut = (lastOut + 0.02 * white) / 1.02;
-      data[i] = lastOut * 3;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buf; noise.loop = true;
-    const noiseGain = ctx.createGain(); noiseGain.gain.value = 0.025;
-    const noiseLp = ctx.createBiquadFilter();
-    noiseLp.type = "lowpass"; noiseLp.frequency.value = 600;
-
-    o1.connect(lp);
-    o2.connect(lp);
-    o3.connect(o3g).connect(lp);
-    lp.connect(hum);
-    noise.connect(noiseLp).connect(noiseGain).connect(hum);
-
-    o1.start(); o2.start(); o3.start(); lfo.start(); noise.start();
-    humNodes = { hum, o1, o2, o3, lfo, noise };
-    humOn = true;
-  }
-
-  function stopHum(){
-    if(!humOn || !humNodes) return;
-    const now = ctx.currentTime;
-    humNodes.hum.gain.cancelScheduledValues(now);
-    humNodes.hum.gain.linearRampToValueAtTime(0, now + 0.4);
-    const n = humNodes;
-    setTimeout(() => {
-      try{ n.o1.stop(); n.o2.stop(); n.o3.stop(); n.lfo.stop(); n.noise.stop(); }catch(e){}
-    }, 500);
-    humNodes = null;
-    humOn = false;
-  }
-
-  // Satisfying clunk: low thud + metallic tick + short noise burst
-  function clunk(){
-    if(muted) return;
-    if(!ensure()) return;
-    const t = ctx.currentTime;
-
-    // Thud: low sine pitch-down
-    const thud = ctx.createOscillator();
-    thud.type = "sine";
-    thud.frequency.setValueAtTime(180, t);
-    thud.frequency.exponentialRampToValueAtTime(55, t + 0.18);
-    const tg = ctx.createGain();
-    tg.gain.setValueAtTime(0.0001, t);
-    tg.gain.exponentialRampToValueAtTime(0.6, t + 0.01);
-    tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
-    thud.connect(tg).connect(master);
-    thud.start(t); thud.stop(t + 0.3);
-
-    // Metallic tick: short high square through bandpass
-    const tick = ctx.createOscillator();
-    tick.type = "square"; tick.frequency.value = 1800;
-    const tkg = ctx.createGain();
-    tkg.gain.setValueAtTime(0.0001, t);
-    tkg.gain.exponentialRampToValueAtTime(0.18, t + 0.005);
-    tkg.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-    const bp = ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 2200; bp.Q.value = 6;
-    tick.connect(bp).connect(tkg).connect(master);
-    tick.start(t + 0.02); tick.stop(t + 0.12);
-
-    // Noise burst (impact)
-    const dur = 0.12;
-    const nbuf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-    const nd = nbuf.getChannelData(0);
-    for(let i=0;i<nd.length;i++) nd[i] = (Math.random()*2-1) * (1 - i/nd.length);
-    const ns = ctx.createBufferSource(); ns.buffer = nbuf;
-    const nlp = ctx.createBiquadFilter();
-    nlp.type = "lowpass"; nlp.frequency.value = 1200;
-    const ng = ctx.createGain(); ng.gain.value = 0.25;
-    ns.connect(nlp).connect(ng).connect(master);
-    ns.start(t);
-  }
-
-  // Generic tone helper: note array with frequencies and timings
-  function playNotes(notes, waveform = "triangle"){
-    if(muted) return;
-    if(!ensure()) return;
-    const t0 = ctx.currentTime;
-    notes.forEach(n => {
-      const o = ctx.createOscillator();
-      o.type = n.wave || waveform;
-      o.frequency.setValueAtTime(n.freq, t0 + n.t);
-      if(n.glide){
-        o.frequency.exponentialRampToValueAtTime(n.glide, t0 + n.t + n.dur);
+  <head>
+    <meta charset="utf-8" />
+    <title>Vend Your Destiny</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: oklch(0.965 0.012 80);
+        --bg-2: oklch(0.94 0.018 80);
+        --ink: oklch(0.22 0.02 60);
+        --ink-2: oklch(0.42 0.015 60);
+        --line: oklch(0.82 0.015 70);
+        --accent: oklch(0.72 0.16 60);
+        --accent-deep: oklch(0.55 0.16 55);
+        --good: oklch(0.65 0.14 150);
+        --absurd: oklch(0.72 0.16 60);
+        --mundane: oklch(0.6 0.16 25);
+        --display: "Space Grotesk", system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
       }
-      const g = ctx.createGain();
-      const vol = n.vol ?? 0.22;
-      g.gain.setValueAtTime(0.0001, t0 + n.t);
-      g.gain.exponentialRampToValueAtTime(vol, t0 + n.t + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + n.t + n.dur);
-      o.connect(g).connect(master);
-      o.start(t0 + n.t);
-      o.stop(t0 + n.t + n.dur + 0.05);
-    });
-  }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--display);
+      }
+      body {
+        min-height: 100vh;
+        background:
+          radial-gradient(
+            ellipse at 50% -20%,
+            oklch(0.92 0.03 70) 0%,
+            transparent 55%
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0 39px,
+            oklch(0.9 0.015 70 / 0.35) 39px 40px
+          ),
+          var(--bg);
+        overflow-x: hidden;
+      }
 
-  // Correct: bright ascending major arpeggio (C-E-G-C)
-  function correctTone(){
-    playNotes([
-      { freq: 523.25, t: 0.00, dur: 0.18, vol: 0.22 },
-      { freq: 659.25, t: 0.09, dur: 0.18, vol: 0.22 },
-      { freq: 783.99, t: 0.18, dur: 0.22, vol: 0.22 },
-      { freq: 1046.5, t: 0.30, dur: 0.45, vol: 0.22 },
-    ], "triangle");
-  }
+      /* ================= LAYOUT ================= */
+      .stage {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px 28px 60px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+      header.topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 14px;
+      }
+      .logo {
+        font-family: var(--mono);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--ink-2);
+      }
+      .logo b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .scoreboard {
+        display: flex;
+        gap: 18px;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .score-pill {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 7px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--bg-2);
+      }
+      .score-pill .k {
+        color: var(--ink-2);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 10px;
+      }
+      .score-pill .v {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .score-pill.destined .v {
+        color: var(--good);
+      }
+      .score-pill.absurd .v {
+        color: var(--absurd);
+      }
+      .score-pill.mundane .v {
+        color: var(--mundane);
+      }
 
-  // Funny: bouncy cartoon slide-whistle ("boing")
-  function funnyTone(){
-    playNotes([
-      { freq: 300, glide: 900, t: 0.00, dur: 0.18, vol: 0.20, wave: "sine" },
-      { freq: 900, glide: 260, t: 0.18, dur: 0.22, vol: 0.20, wave: "sine" },
-      { freq: 520, t: 0.42, dur: 0.16, vol: 0.18, wave: "triangle" },
-    ], "sine");
-  }
+      /* ================= SCENE ================= */
+      .scene {
+        display: grid;
+        grid-template-columns: 1fr 460px 1fr;
+        align-items: end;
+        gap: 24px;
+        min-height: 560px;
+        position: relative;
+      }
+      .scene::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: var(--line);
+      }
 
-  // Bad: low descending sad trombone
-  function badTone(){
-    playNotes([
-      { freq: 311.13, t: 0.00, dur: 0.24, vol: 0.22, wave: "sawtooth" },
-      { freq: 277.18, t: 0.22, dur: 0.24, vol: 0.22, wave: "sawtooth" },
-      { freq: 246.94, t: 0.44, dur: 0.28, vol: 0.22, wave: "sawtooth" },
-      { freq: 196.00, glide: 155, t: 0.70, dur: 0.55, vol: 0.22, wave: "sawtooth" },
-    ], "sawtooth");
-  }
+      /* ================= CHARACTER ================= */
+      .character-col {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 18px;
+        min-height: 420px;
+        justify-content: flex-end;
+      }
+      .speech {
+        position: relative;
+        background: #fff;
+        border: 1px solid var(--ink);
+        border-radius: 14px;
+        padding: 16px 18px;
+        max-width: 340px;
+        box-shadow: 4px 4px 0 var(--ink);
+        font-size: 17px;
+        line-height: 1.35;
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+      }
+      .speech.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .speech::after {
+        content: "";
+        position: absolute;
+        left: 38px;
+        bottom: -10px;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-right: 1px solid var(--ink);
+        border-bottom: 1px solid var(--ink);
+        transform: rotate(45deg);
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .character {
+        width: 200px;
+        height: 300px;
+        background: var(--bg-2);
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-2);
+        text-align: center;
+        box-shadow: 4px 4px 0 var(--ink);
+        position: relative;
+        overflow: hidden;
+        transition:
+          transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+          opacity 0.4s;
+      }
+      .character::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          -45deg,
+          transparent 0 10px,
+          oklch(0.88 0.02 70 / 0.35) 10px 11px
+        );
+        pointer-events: none;
+      }
+      .character .role,
+      .character .tag {
+        position: relative;
+        z-index: 2;
+      }
 
-  function setMuted(v){
-    muted = v;
-    if(muted) stopHum();
-    else startHum();
-  }
+      /* ========== PORTRAITS ========== */
+      .portrait {
+        position: relative;
+        z-index: 2;
+        width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .portrait img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        display: block;
+      }
 
-  return { resume, startHum, stopHum, clunk, correctTone, funnyTone, badTone, setMuted, isMuted: () => muted };
-})();
+      .character .role {
+        font-weight: 600;
+        color: var(--ink);
+        font-size: 13px;
+        letter-spacing: 0.02em;
+        margin-bottom: 4px;
+      }
+      .character .tag {
+        border: 1px solid var(--line);
+        background: #fff;
+        padding: 3px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 9px;
+      }
+      .character.enter {
+        animation: walk-in 0.7s ease-out;
+      }
+      .character.leave {
+        animation: walk-out 0.6s ease-in forwards;
+      }
+      @keyframes walk-in {
+        0% {
+          transform: translateX(-120%) rotate(-3deg);
+          opacity: 0;
+        }
+        40% {
+          opacity: 1;
+        }
+        60% {
+          transform: translateX(6%) rotate(1deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(0) rotate(0);
+          opacity: 1;
+        }
+      }
+      @keyframes walk-out {
+        0% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(-160%) rotate(-5deg);
+          opacity: 0;
+        }
+      }
 
-/* ===================== STATE ===================== */
-const state = {
-  deck: [],
-  idx: 0,
-  destined: 0,
-  absurd: 0,
-  mundane: 0,
-  locked: false,
-};
+      /* ================= VENDING MACHINE ================= */
+      .machine-col {
+        display: flex;
+        justify-content: center;
+        align-items: end;
+        padding-bottom: 18px;
+      }
+      .machine {
+        width: 440px;
+        background: linear-gradient(
+          180deg,
+          oklch(0.55 0.16 55) 0%,
+          oklch(0.48 0.17 50) 100%
+        );
+        border: 2px solid var(--ink);
+        border-radius: 18px 18px 8px 8px;
+        padding: 18px;
+        box-shadow:
+          8px 8px 0 var(--ink),
+          inset 0 2px 0 rgba(255, 255, 255, 0.15);
+        position: relative;
+      }
+      .machine-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        color: #fff;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .machine-head b {
+        font-weight: 600;
+      }
+      .machine-head .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--good);
+        margin-right: 6px;
+        box-shadow: 0 0 8px var(--good);
+        animation: blink 1.6s ease-in-out infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0.3;
+        }
+      }
 
-const $ = (s) => document.querySelector(s);
-const slotsEl = $("#slots");
-const speechEl = $("#speech");
-const charEl = $("#character");
-const charRole = $("#char-role");
-const charTag = $("#char-tag");
-const charPortrait = $("#char-portrait");
-const displayTxt = $("#display-txt");
-const chute = $("#chute");
-const result = $("#result");
-const resultBody = $("#result-body");
-const resultItem = $("#result-item");
-const resultPoints = $("#result-points");
-const verdictEl = $("#verdict");
-const nextBtn = $("#next-btn");
-const endcard = $("#endcard");
+      .display {
+        background: oklch(0.2 0.02 60);
+        border: 2px solid var(--ink);
+        border-radius: 6px;
+        padding: 10px 14px;
+        color: oklch(0.85 0.14 120);
+        font-family: var(--mono);
+        font-size: 12px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 14px;
+        text-shadow: 0 0 6px oklch(0.75 0.2 130 / 0.6);
+        overflow: hidden;
+      }
+      .display .txt {
+        display: inline-block;
+      }
+      .display .cursor {
+        display: inline-block;
+        width: 8px;
+        height: 14px;
+        background: oklch(0.85 0.14 120);
+        margin-left: 4px;
+        vertical-align: -2px;
+        animation: blink 1s steps(2) infinite;
+      }
 
-function shuffled(arr){
-  const a = arr.slice();
-  for(let i=a.length-1;i>0;i--){
-    const j = (Math.random()*(i+1))|0;
-    [a[i],a[j]] = [a[j],a[i]];
-  }
-  return a;
-}
+      .slots {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        background: oklch(0.3 0.03 60);
+        border: 2px solid var(--ink);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 14px;
+      }
+      .slot {
+        aspect-ratio: 3/4;
+        background: linear-gradient(
+          180deg,
+          oklch(0.97 0.01 80) 0%,
+          oklch(0.9 0.015 80) 100%
+        );
+        border: 2px solid var(--ink);
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 8px;
+        cursor: pointer;
+        position: relative;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease;
+        text-align: center;
+        overflow: hidden;
+      }
+      .slot:hover:not([disabled]) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 0 oklch(0.3 0.03 60);
+      }
+      .slot:active:not([disabled]) {
+        transform: translateY(0);
+      }
+      .slot[disabled] {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+      .slot .code {
+        position: absolute;
+        top: 6px;
+        left: 8px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--ink-2);
+        letter-spacing: 0.08em;
+      }
+      .slot .price {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--accent-deep);
+        font-weight: 600;
+      }
+      .slot .glyph {
+        width: 54px;
+        height: 54px;
+        border: 1.5px solid var(--ink);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        margin-top: 10px;
+        background:
+          repeating-linear-gradient(
+            45deg,
+            transparent 0 6px,
+            oklch(0.88 0.02 70 / 0.7) 6px 7px
+          ),
+          #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-family: var(--display);
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .slot .name {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink);
+        font-weight: 500;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .slot.picked {
+        box-shadow: inset 0 0 0 3px var(--accent);
+      }
 
-function setDisplay(text){
-  displayTxt.textContent = text;
-}
+      .chute {
+        background: oklch(0.25 0.02 60);
+        border: 2px solid var(--ink);
+        border-radius: 6px;
+        height: 72px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
+      .chute::before {
+        content: "DISPENSE";
+        position: absolute;
+        top: 6px;
+        left: 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        color: oklch(0.6 0.02 60);
+      }
+      .dropped {
+        position: absolute;
+        left: 50%;
+        top: -60px;
+        transform: translateX(-50%);
+        width: 56px;
+        height: 56px;
+        background: #fff;
+        border: 1.5px solid var(--ink);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 22px;
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+      }
+      .dropped.drop {
+        animation: drop 1s cubic-bezier(0.5, 0.1, 0.4, 1) forwards;
+      }
+      @keyframes drop {
+        0% {
+          top: -60px;
+          transform: translateX(-50%) rotate(0);
+        }
+        70% {
+          top: 18px;
+          transform: translateX(-50%) rotate(12deg);
+        }
+        85% {
+          top: 14px;
+          transform: translateX(-50%) rotate(-6deg);
+        }
+        100% {
+          top: 16px;
+          transform: translateX(-50%) rotate(0);
+        }
+      }
 
-function updateScoreboard(){
-  $("#sc-destined").textContent = state.destined;
-  $("#sc-absurd").textContent = state.absurd;
-  $("#sc-mundane").textContent = state.mundane;
-  $("#sc-round").textContent = `${Math.min(state.idx+1, state.deck.length)}/${state.deck.length}`;
-}
+      /* ================= RESULT PANEL ================= */
+      .result-col {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        padding-bottom: 18px;
+        min-height: 420px;
+        justify-content: flex-end;
+      }
+      .result-card {
+        width: 320px;
+        background: var(--bg-2);
+        border: 1px solid var(--ink);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 4px 4px 0 var(--ink);
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 0.4s,
+          transform 0.4s;
+        font-size: 14px;
+      }
+      .result-card.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .result-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-2);
+      }
+      .verdict {
+        padding: 2px 8px;
+        border-radius: 4px;
+        border: 1px solid currentColor;
+        font-weight: 600;
+      }
+      .verdict.destined {
+        color: var(--good);
+      }
+      .verdict.absurd {
+        color: var(--absurd);
+      }
+      .verdict.mundane {
+        color: var(--mundane);
+      }
+      .result-body {
+        font-family: var(--display);
+        font-size: 15px;
+        line-height: 1.4;
+        color: var(--ink);
+      }
+      .result-meta {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--line);
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-2);
+        display: flex;
+        justify-content: space-between;
+      }
+      .result-meta b {
+        color: var(--ink);
+        font-weight: 600;
+      }
 
-function renderRound(){
-  const scenario = state.deck[state.idx];
-  if(!scenario){ return endGame(); }
+      .next-btn {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: var(--ink);
+        color: var(--bg);
+        border: 1px solid var(--ink);
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        box-shadow: 3px 3px 0 var(--accent-deep);
+        transition: transform 0.1s;
+      }
+      .next-btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 4px 4px 0 var(--accent-deep);
+      }
+      .next-btn:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 var(--accent-deep);
+      }
+      .next-btn[hidden] {
+        display: none;
+      }
 
-  // Hide result, clear chute
-  result.classList.remove("show");
-  nextBtn.hidden = true;
-  chute.innerHTML = "";
+      /* ================= FOOTER ================= */
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-2);
+        padding-top: 8px;
+        letter-spacing: 0.06em;
+      }
+      .footer .hint kbd {
+        font-family: var(--mono);
+        background: #fff;
+        border: 1px solid var(--line);
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        margin: 0 2px;
+      }
+      .reset {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-2);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        text-decoration: underline;
+      }
+      .reset:hover {
+        color: var(--ink);
+      }
+      .footer button.reset + button.reset {
+        margin-left: 12px;
+      }
+      #mute-btn[data-muted="1"] {
+        color: var(--mundane);
+      }
 
-  // character
-  charEl.classList.remove("enter","leave");
-  void charEl.offsetWidth; // reflow
-  charEl.classList.add("enter");
-  charRole.textContent = scenario.role;
-  charTag.textContent = scenario.tag;
-  charPortrait.className = "portrait";
-  charPortrait.innerHTML = `<img src="images/${scenario.portrait}.png" alt="${scenario.portrait}">`;
+      /* ================= END SCREEN ================= */
+      .endcard {
+        position: fixed;
+        inset: 0;
+        background: oklch(0.22 0.02 60 / 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        backdrop-filter: blur(4px);
+      }
+      .endcard.show {
+        display: flex;
+      }
+      .endcard .inner {
+        background: var(--bg);
+        border: 2px solid var(--ink);
+        border-radius: 18px;
+        padding: 32px;
+        width: 440px;
+        text-align: center;
+        box-shadow: 8px 8px 0 var(--accent-deep);
+      }
+      .endcard h2 {
+        font-family: var(--display);
+        font-size: 28px;
+        margin: 0 0 8px;
+      }
+      .endcard .flavour {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-2);
+        margin: 0 0 20px;
+        letter-spacing: 0.04em;
+      }
+      .endcard .tallies {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .tally {
+        border: 1px solid var(--ink);
+        border-radius: 10px;
+        padding: 14px;
+        background: var(--bg-2);
+      }
+      .tally .k {
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-2);
+      }
+      .tally .v {
+        font-family: var(--display);
+        font-size: 32px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .tally.destined .v {
+        color: var(--good);
+      }
+      .tally.absurd .v {
+        color: var(--absurd);
+      }
+      .tally.mundane .v {
+        color: var(--mundane);
+      }
 
-  // speech bubble
-  speechEl.classList.remove("show");
-  setTimeout(() => {
-    speechEl.textContent = `"${scenario.problem}"`;
-    speechEl.classList.add("show");
-  }, 300);
+      /* ================= INTRO OVERLAY ================= */
+      .intro-overlay {
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse at 50% -20%,
+            oklch(0.92 0.03 70) 0%,
+            transparent 55%
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0 39px,
+            oklch(0.9 0.015 70 / 0.35) 39px 40px
+          ),
+          var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 24px;
+      }
+      .intro-overlay.hidden {
+        display: none;
+      }
+      .intro-inner {
+        max-width: 680px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        align-items: center;
+      }
+      .intro-crt {
+        width: 100%;
+        background:
+          repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.06) 0 1px,
+            transparent 1px 3px
+          ),
+          oklch(0.18 0.02 60);
+        border: 2px solid var(--ink);
+        border-radius: 8px;
+        padding: 20px 24px;
+        color: oklch(0.85 0.14 120);
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.8;
+        min-height: 240px;
+        text-shadow: 0 0 6px oklch(0.75 0.2 130 / 0.6);
+        white-space: pre-wrap;
+        box-shadow: 6px 6px 0 var(--ink);
+      }
+      .intro-crt-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .intro-crt-header .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--good);
+        margin-right: 6px;
+        box-shadow: 0 0 8px var(--good);
+        animation: blink 1.6s ease-in-out infinite;
+      }
 
-  // slots — randomize order within the round
-  const opts = shuffled(scenario.options);
-  slotsEl.innerHTML = "";
-  opts.forEach((opt, i) => {
-    const btn = document.createElement("button");
-    btn.className = "slot";
-    btn.dataset.kind = opt.kind;
-    btn.dataset.idx = i;
-    btn.innerHTML = `
-      <div class="price">¢${25 + i*10}</div>
+      /* Tiny screens */
+      @media (max-width: 980px) {
+        .scene {
+          grid-template-columns: 1fr;
+        }
+        .character-col,
+        .result-col {
+          align-items: center;
+          min-height: auto;
+        }
+        .machine {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="intro-overlay" id="intro-overlay">
+      <div class="intro-inner">
+        <div class="logo" style="text-align: center">
+          VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br /><span
+            style="
+              font-size: 9px;
+              letter-spacing: 0.06em;
+              color: var(--ink-2);
+              font-weight: 400;
+            "
+            >A DEUS EX MACHINA EXPERIENCE</span
+          >
+        </div>
+        <div class="intro-crt">
+          <div class="intro-crt-header">
+            <div><span class="dot"></span>BOOT SEQUENCE</div>
+            <b>MACHINA-3000</b>
+          </div>
+          <span id="intro-text"></span
+          ><span class="cursor" id="intro-cursor"></span>
+        </div>
+        <button class="next-btn" id="insert-token-btn" hidden>
+          INSERT TOKEN →
+        </button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <header class="topbar">
+        <div class="logo">
+          VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br /><span
+            style="
+              font-size: 9px;
+              letter-spacing: 0.06em;
+              color: var(--ink-2);
+              font-weight: 400;
+            "
+            >A DEUS EX MACHINA EXPERIENCE</span
+          >
+        </div>
+        <div class="scoreboard">
+          <div class="score-pill destined">
+            <span class="k">Destined</span
+            ><span class="v" id="sc-destined">0</span>
+          </div>
+          <div class="score-pill absurd">
+            <span class="k">Absurd</span><span class="v" id="sc-absurd">0</span>
+          </div>
+          <div class="score-pill mundane">
+            <span class="k">Mundane</span
+            ><span class="v" id="sc-mundane">0</span>
+          </div>
+          <div class="score-pill">
+            <span class="k">Round</span
+            ><span class="v" id="sc-round">0/10</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="scene">
+        <div class="character-col">
+          <div class="speech" id="speech">...</div>
+          <div class="character" id="character">
+            <div class="portrait" id="char-portrait"></div>
+            <div class="role" id="char-role">CUSTOMER</div>
+            <div class="tag" id="char-tag">placeholder portrait</div>
+          </div>
+        </div>
+
+        <div class="machine-col">
+          <div class="machine">
+            <div class="machine-head">
+              <div><span class="dot"></span>READY</div>
+              <b>MACHINA-3000</b>
+            </div>
+            <div class="display">
+              <span class="txt" id="display-txt"
+                >INSERT TOKEN… AWAITING CUSTOMER</span
+              ><span class="cursor"></span>
+            </div>
+            <div class="slots" id="slots">
+              <!-- filled by JS -->
+            </div>
+            <div class="chute" id="chute"></div>
+          </div>
+        </div>
+
+        <div class="result-col">
+          <div class="result-card" id="result">
+            <div class="result-head">
+              <span>TRANSACTION LOG</span>
+              <span class="verdict" id="verdict">—</span>
+            </div>
+            <div class="result-body" id="result-body">Awaiting dispense…</div>
+            <div class="result-meta">
+              <span>ITEM: <b id="result-item">—</b></span>
+            </div>
+          </div>
+          <button class="next-btn" id="next-btn" hidden>Next Customer →</button>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="hint">
+          CLICK a slot to dispense. <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> to
+          pick, <kbd>N</kbd> for next.
+        </div>
+        <button class="reset" id="mute-btn" data-muted="0">♪ Sound On</button>
+        <button class="reset" id="reset">Reset Game</button>
+      </footer>
+    </div>
+
+    <div class="endcard" id="endcard">
+      <div class="inner">
+        <h2 id="end-rank">—</h2>
+        <p class="flavour" id="end-title">The machine hums to sleep.</p>
+        <div class="tallies">
+          <div class="tally destined">
+            <div class="k">Destined</div>
+            <div class="v" id="end-destined">0</div>
+          </div>
+          <div class="tally absurd">
+            <div class="k">Absurd</div>
+            <div class="v" id="end-absurd">0</div>
+          </div>
+          <div class="tally mundane">
+            <div class="k">Mundane</div>
+            <div class="v" id="end-mundane">0</div>
+          </div>
+        </div>
+        <button class="next-btn" id="play-again">Play Again</button>
+      </div>
+    </div>
+
+    <script>
+      /* ===================== DATA ===================== */
+      const SCENARIOS = [
+        {
+          role: "KNIGHT",
+          portrait: "knight",
+          tag: "armored, unmoved",
+          problem:
+            "I have faced a thousand battles. I have never lost. Today I feel... nothing. The dragons arrive at noon.",
+          options: [
+            {
+              code: "A1",
+              name: "A Worthy Opponent",
+              glyph: "✕",
+              kind: "destined",
+              reply:
+                "DISPENSED. Arrives immediately. Turns out it's you, six years ago. The fight takes all morning. You feel everything again.",
+            },
+            {
+              code: "B2",
+              name: "Manchet",
+              glyph: "▭",
+              kind: "absurd",
+              reply:
+                "DISPENSED. The lord's bread. Soft, white, deeply inappropriate. You eat it slowly. It is the best thing you have ever tasted. The dragons can wait.",
+            },
+            {
+              code: "C3",
+              name: "Motivational Poster",
+              glyph: "✦",
+              kind: "mundane",
+              reply:
+                'DISPENSED. Illuminated manuscript. Hand-lettered. Says "Persevere." You stare at it for eleven minutes. The dragons arrive. You are still reading.',
+            },
+          ],
+        },
+        {
+          role: "WIZARD",
+          portrait: "wizard",
+          tag: "robes, distracted",
+          problem:
+            "I have studied the arcane arts for forty years, crossed dimensions, and even seen the void look back. Yet, the only thing in my head right now before an impending duel is how to make perfect toast.",
+          options: [
+            {
+              code: "A1",
+              name: "The Void, Toasted",
+              glyph: "◼",
+              kind: "destined",
+              reply:
+                "DISPENSED. A single slice. Burnt at the edges, warm in the middle. You understand suddenly that the void was always hungry too. You sit down together. You share breakfast. The duel can wait.",
+            },
+            {
+              code: "B2",
+              name: "Toaster 3000",
+              glyph: "▯▯",
+              kind: "absurd",
+              reply:
+                "DISPENSED. You arrive at the duel. You make toast. It is transcendent. Your opponent eats a slice. He concedes. Nobody fully understands what happened.",
+            },
+            {
+              code: "C3",
+              name: "A Bread Recipe",
+              glyph: "✎",
+              kind: "mundane",
+              reply:
+                "DISPENSED. Handwritten. Laminated. The machine is very proud of it. You do not have the ingredients. You do not have the time. It is, however, a great recipe.",
+            },
+          ],
+        },
+        {
+          role: "K-POP IDOL",
+          portrait: "idol",
+          tag: "sleepless, trending",
+          problem:
+            "During a live stream I said 'I wish I could sleep for a hundred years.' My anti-fans clipped it. Now the headline reads: IDOL ABANDONS FANS. My comeback is in three days.",
+          options: [
+            {
+              code: "A1",
+              name: "A Good Night's Sleep",
+              glyph: "☾",
+              kind: "destined",
+              reply:
+                "DISPENSED. Eight hours. No notifications. No algorithms. You wake up and the internet has moved on to something else entirely. It always does. Your comeback is still in three days. You are ready.",
+            },
+            {
+              code: "B2",
+              name: "Snorlax Standee",
+              glyph: "▓",
+              kind: "absurd",
+              reply:
+                "DISPENSED. Fans place it outside your agency building overnight. By morning #IdolSleepsHard is trending. Your fandom has rebranded your scandal into a personality trait. Somehow this works.",
+            },
+            {
+              code: "C3",
+              name: "Royal Sleep Kit",
+              glyph: "♛",
+              kind: "mundane",
+              reply:
+                "DISPENSED. The machine meant well. You are now in a tower. Your comeback has been rescheduled by approximately one hundred years. Your anti-fans are also asleep. Small mercies.",
+            },
+          ],
+        },
+        {
+          role: "PIRATE",
+          portrait: "pirate",
+          tag: "saltworn, grieving",
+          problem:
+            "Me ship is gone. Took thirty years to build her. She knew every current, every wind. The crew can find another captain. But I am nothing without her.",
+          options: [
+            {
+              code: "A1",
+              name: "The First Plank",
+              glyph: "▬",
+              kind: "destined",
+              reply:
+                "DISPENSED. Worn. Salt-bleached. From before she had a name. You hold it for a long time. Then you find a forest. Then you find an axe. You know what comes next.",
+            },
+            {
+              code: "B2",
+              name: "Ship in a Bottle",
+              glyph: "▲",
+              kind: "absurd",
+              reply:
+                "DISPENSED. One ship. Fully rigged. Approximately four inches long. It is exquisite. You hold it up to the light for a very long time. The crew watches in silence. Nobody knows what to say.",
+            },
+            {
+              code: "C3",
+              name: "A Future Ship",
+              glyph: "◈",
+              kind: "mundane",
+              reply:
+                "DISPENSED. You are now in the future. Piracy still exists. It involves a laptop and a VPN. You do not like it here. You do not understand any of this. The ocean is right outside but somehow unreachable.",
+            },
+          ],
+        },
+        {
+          role: "INTERN",
+          portrait: "intern",
+          tag: "lanyard, fluorescent light",
+          problem:
+            "I hit 'reply-all' on the CEO's email. It's 9:02 AM. I am considering the ocean.",
+          options: [
+            {
+              code: "A1",
+              name: "Radical Transparency",
+              glyph: "✉",
+              kind: "destined",
+              reply:
+                'DISPENSED. You send one more email. Subject line: My Sincere Apologies. No filter. Just exactly what happened and exactly how you feel about it. The CEO replies in four minutes; "All good." You are going to be fine.',
+            },
+            {
+              code: "B2",
+              name: "A Second Reply-All",
+              glyph: "!!",
+              kind: "absurd",
+              reply:
+                "DISPENSED. You don't know what came over you. Neither does anyone else. By 9:45 AM there is a Slack thread, a meme, and three people who say it's the best thing that's ever happened at this company. HR is still processing.",
+            },
+            {
+              code: "C3",
+              name: "A Coffee",
+              glyph: "∪",
+              kind: "mundane",
+              reply:
+                "DISPENSED. Hot. Black. The machine's answer to everything. It does not unsend the email. It does not explain anything. It is, however, a very good coffee. You stare at the wall and drink it slowly.",
+            },
+          ],
+        },
+        {
+          role: "GHOST",
+          portrait: "ghost",
+          tag: "translucent, invited",
+          problem:
+            "I've haunted this attic for 400 years. Seventeen families. I know every creak, every secret, every name. The current owner just invited me to brunch. I don't know how to be scary anymore. Why am I trying to be scary even?",
+          options: [
+            {
+              code: "A1",
+              name: "A Memory",
+              glyph: "◉",
+              kind: "destined",
+              reply:
+                "DISPENSED. A memory. Yours. 1624. You refused to leave because nobody asked you to. Then nobody ever did. Seventeen families. Four hundred years. You didn't haunt this house. You lived in it. Go to brunch.",
+            },
+            {
+              code: "B2",
+              name: "A Welcome Mat",
+              glyph: "▭",
+              kind: "absurd",
+              reply:
+                'DISPENSED. Coir. Printed. It says "STILL HERE" in friendly letters. You place it outside the attic door. The current owner adds a small plant next to it. You have feelings about this.',
+            },
+            {
+              code: "C3",
+              name: "A Bedsheet",
+              glyph: "◇",
+              kind: "mundane",
+              reply:
+                "DISPENSED. White. Two eye holes. You hold it for a long time... Did the machine just insult you? You put it back. Nobody speaks of this..!",
+            },
+          ],
+        },
+        {
+          role: "DETECTIVE",
+          portrait: "detective",
+          tag: "trenchcoat, breakfast",
+          problem:
+            "The butler did it. And he knows that I know. It's been one whole week. We have breakfast together every morning. The eggs are excellent. The outside keeps raining. I cannot prove a thing.",
+          options: [
+            {
+              code: "A1",
+              name: "A Frying Pan",
+              glyph: "◎",
+              kind: "destined",
+              reply:
+                "DISPENSED. Cast iron. Still warm. You turn it over. You spot the monogram. You have your thread. The eggs, it turns out, were a distraction.",
+            },
+            {
+              code: "B2",
+              name: "Another Butler",
+              glyph: "∩",
+              kind: "absurd",
+              reply:
+                "DISPENSED. Now there are TWO butlers. One of them did it. You are back to square one.",
+            },
+            {
+              code: "C3",
+              name: "An Umbrella",
+              glyph: "☂",
+              kind: "mundane",
+              reply:
+                "DISPENSED. Compact. Reliable. You step outside. The outside is still raining. The case is exactly where you left it. The butler waves from the window. At least you know the eggs tomorrow will also be excellent.",
+            },
+          ],
+        },
+        {
+          role: "ALIEN",
+          portrait: "alien",
+          tag: "observer, compromised",
+          problem:
+            "Greetings. I have crash-landed. My mission is to observe and document human behaviour. It is now Day 5 since I arrived. I have unknowingly watched 72 hours of TV. I think I cried at a dog video. Who am I..? And why do Earth machines need battery?",
+          options: [
+            {
+              code: "A1",
+              name: "A Feelings Chart",
+              glyph: "◐",
+              kind: "destined",
+              reply:
+                "DISPENSED. Laminated, and Colour-coded. 55-page documented human emotions with helpful facial diagrams. You study it carefully. You recognise quite a number of emotions from the TV watching. But not all. More observation needs to be done. You do not leave... yet.",
+            },
+            {
+              code: "B2",
+              name: "Netflix Subscription",
+              glyph: "▶",
+              kind: "absurd",
+              reply:
+                "DISPENSED. One full month. Your ship sits outside, fully operational. Since you had opinions about the third season, what better reason than to continue? You write up a strongly worded review. You are not going home... yet.",
+            },
+            {
+              code: "C3",
+              name: "A Battery Manual",
+              glyph: "▮▯",
+              kind: "mundane",
+              reply:
+                "DISPENSED. 128 pages. Comprehensive. Covers everything from alkaline, lithium, nickel-cadmium, to even solar cells. Does not cover why humans adore dog videos. Does not explain the emotions and feelings you supposedly had. You read it anyway.",
+            },
+          ],
+        },
+        {
+          role: "DRAGON",
+          portrait: "dragon",
+          tag: "scaled, conflicted",
+          problem:
+            "I'm trying to be a vegetarian. I read about it in a book. But the villagers keep LEAVING KNIGHTS OUTSIDE MY CAVE. It's rude.",
+          options: [
+            {
+              code: "A1",
+              name: "A Vegetable Garden",
+              glyph: "❀",
+              kind: "destined",
+              reply:
+                "DISPENSED. Seeds, soil, and a small trowel. Sized for dragon claws. You plant it outside your cave. The villagers stop leaving knights. Instead, they start leaving unsolicited gardening advice. Still rude. But you have tomatoes now.",
+            },
+            {
+              code: "B2",
+              name: "Tofu Knight",
+              glyph: "▣",
+              kind: "absurd",
+              reply:
+                "DISPENSED. It's a knight-shaped block of tofu. Marinated. Surprisingly satisfying.",
+            },
+            {
+              code: "C3",
+              name: "A Bib",
+              glyph: "◡",
+              kind: "mundane",
+              reply:
+                'DISPENSED. Oversized. Embroidered in large colourful letters: "BON APPÉTIT!". Perfect for a baby dragon... wait, are you? Nonetheless, you fold it carefully and place it in your cave. Who knows?',
+            },
+          ],
+        },
+        {
+          role: "SOLO INDIE DEV",
+          portrait: "dev",
+          tag: "caffeinated, blank",
+          problem:
+            "The two-week jam ends in four days. I suddenly have an idea. And I have Cursor Pro. Yet I have been staring at a blank screen for two hours. Every entry seems to be on point.. wait why am I overthinking. What am I doing again?",
+          options: [
+            {
+              code: "A1",
+              name: "First Line of Code",
+              glyph: "{ }",
+              kind: "destined",
+              reply:
+                "DISPENSED. You type the first line. Then another. And another. You realised the blank screen is gone. You are doing it. You were always going to.",
+            },
+            {
+              code: "B2",
+              name: "Designing the UI",
+              glyph: "▦",
+              kind: "absurd",
+              reply:
+                "DISPENSED. Placement. Colour palette. Fonts. You have not written a single line of logic. You deliberate... Maybe this font is better. The coding will happen.. soon.",
+            },
+            {
+              code: "C3",
+              name: "Research Entries",
+              glyph: "☰",
+              kind: "mundane",
+              reply:
+                "DISPENSED. You scroll through the entries. Everyone is so good. Someone even submitted on Day 1, wow! Five pages later, it hits you. Today is Day 11. Your screen is still blank. The research was very thorough though. Please start.",
+            },
+          ],
+        },
+      ];
+
+      /* ===================== AUDIO ===================== */
+      const Audio = (() => {
+        let ctx = null;
+        let master = null;
+        let humNodes = null;
+        let humOn = false;
+        let muted = false;
+        let bgMusic = null;
+        let inGame = false;
+
+        function ensure() {
+          if (ctx) return ctx;
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          ctx = new AC();
+          master = ctx.createGain();
+          master.gain.value = 0.5;
+          master.connect(ctx.destination);
+          return ctx;
+        }
+
+        function resume() {
+          ensure();
+          if (ctx && ctx.state === "suspended") ctx.resume();
+        }
+
+        // Sparse wind chimes: random pentatonic pings with decay and delay tail
+        function startHum() {
+          if (humOn || muted) return;
+          if (!ensure()) return;
+          humOn = true;
+
+          // A major pentatonic, high register (A5–F#6)
+          const NOTES = [880, 987.77, 1108.73, 1318.51, 1479.98];
+
+          // Shared delay for chime tail
+          const delay = ctx.createDelay(1.0);
+          delay.delayTime.value = 0.38;
+          const delayFb = ctx.createGain();
+          delayFb.gain.value = 0.32;
+          const delayWet = ctx.createGain();
+          delayWet.gain.value = 0.28;
+          delay.connect(delayFb).connect(delay);
+          delay.connect(delayWet).connect(master);
+
+          humNodes = { timeoutId: null, delayWet };
+
+          function chime() {
+            if (!humOn) return;
+            const t = ctx.currentTime;
+            const freq = NOTES[Math.floor(Math.random() * NOTES.length)];
+            const vol = 0.08 + Math.random() * 0.07;
+
+            // Fundamental
+            const osc = ctx.createOscillator();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            osc.detune.value = (Math.random() - 0.5) * 10;
+            const g = ctx.createGain();
+            g.gain.setValueAtTime(0, t);
+            g.gain.linearRampToValueAtTime(vol, t + 0.006);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+            osc.connect(g);
+            g.connect(master);
+            g.connect(delay);
+            osc.start(t);
+            osc.stop(t + 3.0);
+
+            // Soft octave harmonic for bell shimmer
+            const osc2 = ctx.createOscillator();
+            osc2.type = "sine";
+            osc2.frequency.value = freq * 2;
+            const g2 = ctx.createGain();
+            g2.gain.setValueAtTime(0, t);
+            g2.gain.linearRampToValueAtTime(vol * 0.25, t + 0.004);
+            g2.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+            osc2.connect(g2).connect(master);
+            osc2.start(t);
+            osc2.stop(t + 1.6);
+
+            humNodes.timeoutId = setTimeout(chime, 1300 + Math.random() * 2700);
+          }
+
+          // First chime after a short breath
+          humNodes.timeoutId = setTimeout(chime, 500 + Math.random() * 900);
+        }
+
+        function stopHum() {
+          if (!humOn || !humNodes) return;
+          humOn = false;
+          clearTimeout(humNodes.timeoutId);
+          // Let delay tail ring out, then silence it
+          if (humNodes.delayWet && ctx) {
+            humNodes.delayWet.gain.linearRampToValueAtTime(
+              0,
+              ctx.currentTime + 1.5,
+            );
+          }
+          humNodes = null;
+        }
+
+        function initBgMusic() {
+          if (bgMusic) return;
+          bgMusic = new window.Audio("audio/Midnight Vending Machine.mp3");
+          bgMusic.volume = 0.15;
+          bgMusic.loop = true;
+        }
+
+        function startMusic() {
+          inGame = true;
+          initBgMusic();
+          if (!muted) bgMusic.play().catch(() => {});
+        }
+
+        function stopMusic() {
+          inGame = false;
+          if (!bgMusic || bgMusic.paused) return;
+          const targetVol = bgMusic.volume;
+          const steps = 20;
+          let step = 0;
+          const fade = setInterval(() => {
+            step++;
+            bgMusic.volume = Math.max(0, targetVol * (1 - step / steps));
+            if (step >= steps) {
+              clearInterval(fade);
+              bgMusic.pause();
+              bgMusic.currentTime = 0;
+              bgMusic.volume = 0.15;
+            }
+          }, 50);
+        }
+
+        // Satisfying clunk: low thud + metallic tick + short noise burst
+        function clunk() {
+          if (muted) return;
+          if (!ensure()) return;
+          const t = ctx.currentTime;
+
+          // Thud: low sine pitch-down
+          const thud = ctx.createOscillator();
+          thud.type = "sine";
+          thud.frequency.setValueAtTime(180, t);
+          thud.frequency.exponentialRampToValueAtTime(55, t + 0.18);
+          const tg = ctx.createGain();
+          tg.gain.setValueAtTime(0.0001, t);
+          tg.gain.exponentialRampToValueAtTime(0.6, t + 0.01);
+          tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+          thud.connect(tg).connect(master);
+          thud.start(t);
+          thud.stop(t + 0.3);
+
+          // Metallic tick: short high square through bandpass
+          const tick = ctx.createOscillator();
+          tick.type = "square";
+          tick.frequency.value = 1800;
+          const tkg = ctx.createGain();
+          tkg.gain.setValueAtTime(0.0001, t);
+          tkg.gain.exponentialRampToValueAtTime(0.18, t + 0.005);
+          tkg.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+          const bp = ctx.createBiquadFilter();
+          bp.type = "bandpass";
+          bp.frequency.value = 2200;
+          bp.Q.value = 6;
+          tick.connect(bp).connect(tkg).connect(master);
+          tick.start(t + 0.02);
+          tick.stop(t + 0.12);
+
+          // Noise burst (impact)
+          const dur = 0.12;
+          const nbuf = ctx.createBuffer(
+            1,
+            ctx.sampleRate * dur,
+            ctx.sampleRate,
+          );
+          const nd = nbuf.getChannelData(0);
+          for (let i = 0; i < nd.length; i++)
+            nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+          const ns = ctx.createBufferSource();
+          ns.buffer = nbuf;
+          const nlp = ctx.createBiquadFilter();
+          nlp.type = "lowpass";
+          nlp.frequency.value = 1200;
+          const ng = ctx.createGain();
+          ng.gain.value = 0.25;
+          ns.connect(nlp).connect(ng).connect(master);
+          ns.start(t);
+        }
+
+        // Generic tone helper: note array with frequencies and timings
+        function playNotes(notes, waveform = "triangle") {
+          if (muted) return;
+          if (!ensure()) return;
+          const t0 = ctx.currentTime;
+          notes.forEach((n) => {
+            const o = ctx.createOscillator();
+            o.type = n.wave || waveform;
+            o.frequency.setValueAtTime(n.freq, t0 + n.t);
+            if (n.glide) {
+              o.frequency.exponentialRampToValueAtTime(
+                n.glide,
+                t0 + n.t + n.dur,
+              );
+            }
+            const g = ctx.createGain();
+            const vol = n.vol ?? 0.22;
+            g.gain.setValueAtTime(0.0001, t0 + n.t);
+            g.gain.exponentialRampToValueAtTime(vol, t0 + n.t + 0.012);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + n.t + n.dur);
+            o.connect(g).connect(master);
+            o.start(t0 + n.t);
+            o.stop(t0 + n.t + n.dur + 0.05);
+          });
+        }
+
+        // Correct: bright ascending major arpeggio (C-E-G-C)
+        function correctTone() {
+          playNotes(
+            [
+              { freq: 523.25, t: 0.0, dur: 0.18, vol: 0.22 },
+              { freq: 659.25, t: 0.09, dur: 0.18, vol: 0.22 },
+              { freq: 783.99, t: 0.18, dur: 0.22, vol: 0.22 },
+              { freq: 1046.5, t: 0.3, dur: 0.45, vol: 0.22 },
+            ],
+            "triangle",
+          );
+        }
+
+        // Funny: bouncy cartoon slide-whistle ("boing")
+        function funnyTone() {
+          playNotes(
+            [
+              {
+                freq: 300,
+                glide: 900,
+                t: 0.0,
+                dur: 0.18,
+                vol: 0.2,
+                wave: "sine",
+              },
+              {
+                freq: 900,
+                glide: 260,
+                t: 0.18,
+                dur: 0.22,
+                vol: 0.2,
+                wave: "sine",
+              },
+              { freq: 520, t: 0.42, dur: 0.16, vol: 0.18, wave: "triangle" },
+            ],
+            "sine",
+          );
+        }
+
+        // Bad: low descending sad trombone
+        function badTone() {
+          playNotes(
+            [
+              { freq: 311.13, t: 0.0, dur: 0.24, vol: 0.22, wave: "sawtooth" },
+              { freq: 277.18, t: 0.22, dur: 0.24, vol: 0.22, wave: "sawtooth" },
+              { freq: 246.94, t: 0.44, dur: 0.28, vol: 0.22, wave: "sawtooth" },
+              {
+                freq: 196.0,
+                glide: 155,
+                t: 0.7,
+                dur: 0.55,
+                vol: 0.22,
+                wave: "sawtooth",
+              },
+            ],
+            "sawtooth",
+          );
+        }
+
+        function setMuted(v) {
+          muted = v;
+          if (muted) {
+            stopHum();
+            if (bgMusic && !bgMusic.paused) bgMusic.pause();
+          } else {
+            if (!inGame) startHum();
+            if (inGame && bgMusic) bgMusic.play().catch(() => {});
+          }
+        }
+
+        return {
+          resume,
+          startHum,
+          stopHum,
+          startMusic,
+          stopMusic,
+          clunk,
+          correctTone,
+          funnyTone,
+          badTone,
+          setMuted,
+          isMuted: () => muted,
+        };
+      })();
+
+      /* ===================== STATE ===================== */
+      const state = {
+        deck: [],
+        idx: 0,
+        destined: 0,
+        absurd: 0,
+        mundane: 0,
+        locked: false,
+      };
+
+      const $ = (s) => document.querySelector(s);
+      const slotsEl = $("#slots");
+      const speechEl = $("#speech");
+      const charEl = $("#character");
+      const charRole = $("#char-role");
+      const charTag = $("#char-tag");
+      const charPortrait = $("#char-portrait");
+      const displayTxt = $("#display-txt");
+      const chute = $("#chute");
+      const result = $("#result");
+      const resultBody = $("#result-body");
+      const resultItem = $("#result-item");
+      const verdictEl = $("#verdict");
+      const nextBtn = $("#next-btn");
+      const endcard = $("#endcard");
+
+      function shuffled(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = (Math.random() * (i + 1)) | 0;
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function setDisplay(text) {
+        displayTxt.textContent = text;
+      }
+
+      function updateScoreboard() {
+        $("#sc-destined").textContent = state.destined;
+        $("#sc-absurd").textContent = state.absurd;
+        $("#sc-mundane").textContent = state.mundane;
+        $("#sc-round").textContent =
+          `${Math.min(state.idx + 1, state.deck.length)}/${state.deck.length}`;
+      }
+
+      function renderRound() {
+        const scenario = state.deck[state.idx];
+        if (!scenario) {
+          return endGame();
+        }
+
+        // Hide result, clear chute
+        result.classList.remove("show");
+        nextBtn.hidden = true;
+        chute.innerHTML = "";
+
+        // character
+        charEl.classList.remove("enter", "leave");
+        void charEl.offsetWidth; // reflow
+        charEl.classList.add("enter");
+        charRole.textContent = scenario.role;
+        charTag.textContent = scenario.tag;
+        charPortrait.className = "portrait";
+        charPortrait.innerHTML = `<img src="images/${scenario.portrait}.png" alt="${scenario.portrait}">`;
+
+        // speech bubble
+        speechEl.classList.remove("show");
+        setTimeout(() => {
+          speechEl.textContent = `"${scenario.problem}"`;
+          speechEl.classList.add("show");
+        }, 300);
+
+        // slots — randomize order within the round
+        const opts = shuffled(scenario.options);
+        slotsEl.innerHTML = "";
+        opts.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.className = "slot";
+          btn.dataset.kind = opt.kind;
+          btn.dataset.idx = i;
+          btn.innerHTML = `
+      <div class="price">¢${25 + i * 10}</div>
       <div class="glyph">${opt.glyph}</div>
       <div class="name">${opt.name}</div>
     `;
-    btn.addEventListener("click", () => pick(opt, btn));
-    slotsEl.appendChild(btn);
-  });
+          btn.addEventListener("click", () => pick(opt, btn));
+          slotsEl.appendChild(btn);
+        });
 
-  setDisplay(`CUSTOMER #${state.idx+1} — AWAITING SELECTION…`);
-  state.locked = false;
-  updateScoreboard();
-}
+        setDisplay(`CUSTOMER #${state.idx + 1} — AWAITING SELECTION…`);
+        state.locked = false;
+        updateScoreboard();
+      }
 
-function pick(opt, btn){
-  if(state.locked) return;
-  state.locked = true;
+      function pick(opt, btn) {
+        if (state.locked) return;
+        state.locked = true;
 
-  // lock all slots
-  [...slotsEl.children].forEach(el => {
-    el.setAttribute("disabled","");
-    if(el === btn) el.classList.add("picked");
-  });
+        // lock all slots
+        [...slotsEl.children].forEach((el) => {
+          el.setAttribute("disabled", "");
+          if (el === btn) el.classList.add("picked");
+        });
 
-  setDisplay(`DISPENSING: ${opt.name.toUpperCase()}…`);
-  Audio.clunk();
+        setDisplay(`DISPENSING: ${opt.name.toUpperCase()}…`);
+        Audio.clunk();
 
-  // drop animation
-  const drop = document.createElement("div");
-  drop.className = "dropped drop";
-  drop.textContent = opt.glyph;
-  chute.appendChild(drop);
+        // drop animation
+        const drop = document.createElement("div");
+        drop.className = "dropped drop";
+        drop.textContent = opt.glyph;
+        chute.appendChild(drop);
 
-  // after drop, show result
-  setTimeout(() => showResult(opt), 900);
-}
+        // after drop, show result
+        setTimeout(() => showResult(opt), 900);
+      }
 
-function showResult(opt){
-  let points = 0;
-  let verdict = "MUNDANE";
-  let vClass = "mundane";
-  if(opt.kind === "destined"){ state.destined++; points = 10; verdict = "DESTINED"; vClass = "destined"; }
-  else if(opt.kind === "absurd"){ state.absurd++; points = 5;  verdict = "ABSURD"; vClass = "absurd"; }
-  else { state.mundane++; points = 1; verdict = "MUNDANE"; vClass = "mundane"; }
+      function showResult(opt) {
+        let verdict = "MUNDANE";
+        let vClass = "mundane";
+        let displayMsg;
+        if (opt.kind === "destined") {
+          state.destined++;
+          verdict = "DESTINED";
+          vClass = "destined";
+          displayMsg = "THANK YOU — HAVE A TRANSCENDENTAL DAY.";
+        } else if (opt.kind === "absurd") {
+          state.absurd++;
+          verdict = "ABSURD";
+          vClass = "absurd";
+          displayMsg = "THANK YOU — HAVE A QUIRKY DAY.";
+        } else {
+          state.mundane++;
+          verdict = "MUNDANE";
+          vClass = "mundane";
+          displayMsg = "THANK YOU — HAVE A MYSTIFYING DAY.";
+        }
 
-  verdictEl.textContent = verdict;
-  verdictEl.className = "verdict " + vClass;
-  if(opt.kind === "destined") Audio.correctTone();
-  else if(opt.kind === "absurd") Audio.funnyTone();
-  else Audio.badTone();
-  resultBody.textContent = opt.reply;
-  resultItem.textContent = opt.name;
-  resultPoints.innerHTML = `+<b>${points}</b> pts`;
-  result.classList.add("show");
-  setDisplay(`THANK YOU — HAVE A MYSTIFYING DAY.`);
+        verdictEl.textContent = verdict;
+        verdictEl.className = "verdict " + vClass;
+        if (opt.kind === "destined") Audio.correctTone();
+        else if (opt.kind === "absurd") Audio.funnyTone();
+        else Audio.badTone();
+        resultBody.textContent = opt.reply;
+        resultItem.textContent = opt.name;
+        result.classList.add("show");
+        setDisplay(displayMsg);
 
-  updateScoreboard();
+        updateScoreboard();
 
-  // character leaves
-  setTimeout(() => {
-    speechEl.classList.remove("show");
-    charEl.classList.remove("enter");
-    charEl.classList.add("leave");
-  }, 600);
+        // character leaves
+        setTimeout(() => {
+          speechEl.classList.remove("show");
+          charEl.classList.remove("enter");
+          charEl.classList.add("leave");
+        }, 600);
 
-  nextBtn.hidden = false;
-  nextBtn.focus();
-}
+        nextBtn.hidden = false;
+        nextBtn.focus();
+      }
 
-function nextRound(){
-  state.idx++;
-  if(state.idx >= state.deck.length){ endGame(); return; }
-  renderRound();
-}
+      function nextRound() {
+        state.idx++;
+        if (state.idx >= state.deck.length) {
+          endGame();
+          return;
+        }
+        renderRound();
+      }
 
-function endGame(){
-  $("#end-destined").textContent = state.destined;
-  $("#end-absurd").textContent = state.absurd;
-  $("#end-mundane").textContent = state.mundane;
-  let rank, title;
-  if(state.destined >= 7){ rank = "ARCHIVIST OF FATE"; title = "The machine files this under: Exceptional."; }
-  else if(state.absurd >= 6){ rank = "CHAOS CONCIERGE"; title = "The machine is still laughing. Somewhere."; }
-  else if(state.destined + state.absurd >= 7){ rank = "COMPETENT ORACLE"; title = "Adequate. The machine suspects you knew what you were doing."; }
-  else if(state.mundane >= 6){ rank = "CURSED VENDOR"; title = "The machine sighs. Mechanically."; }
-  else { rank = "APPRENTICE DISPENSER"; title = "The machine has seen worse. Probably."; }
-  $("#end-rank").textContent = rank;
-  $("#end-title").textContent = title;
-  endcard.classList.add("show");
-  setDisplay("OUT OF ORDER — END OF SHIFT");
-}
+      function endGame() {
+        $("#end-destined").textContent = state.destined;
+        $("#end-absurd").textContent = state.absurd;
+        $("#end-mundane").textContent = state.mundane;
+        let rank, title;
+        if (state.destined >= 7) {
+          rank = "ARCHIVIST OF FATE";
+          title = "The machine files this under: Exceptional.";
+        } else if (state.absurd >= 6) {
+          rank = "CHAOS CONCIERGE";
+          title = "The machine is still laughing. Somewhere.";
+        } else if (state.destined + state.absurd >= 7) {
+          rank = "COMPETENT ORACLE";
+          title =
+            "Adequate. The machine suspects you knew what you were doing.";
+        } else if (state.mundane >= 6) {
+          rank = "CURSED VENDOR";
+          title = "The machine sighs. Mechanically.";
+        } else {
+          rank = "APPRENTICE DISPENSER";
+          title = "The machine has seen worse. Probably.";
+        }
+        $("#end-rank").textContent = rank;
+        $("#end-title").textContent = title;
+        endcard.classList.add("show");
+        setDisplay("OUT OF ORDER — END OF SHIFT");
+      }
 
-/* ===================== INTRO ===================== */
-const INTRO_TEXT = `Somewhere between a broken plot and an impossible situation, a vending machine appeared. Nobody built it. Nobody ordered it. It simply arrived — humming quietly — at the exact moment it was needed.
+      /* ===================== INTRO ===================== */
+      const INTRO_TEXT = `Somewhere between a broken plot and an impossible situation, a vending machine appeared. Nobody built it. Nobody ordered it. It simply arrived — humming quietly — at the exact moment it was needed.
 
 This is the MACHINA-3000.
 
@@ -1101,81 +1804,92 @@ This is called Deus Ex Machina. A god from the machine. An answer that shouldn't
 
 You are today's operator. 10 customers. 3 options each. Dispense wisely. Or don't. The machine has seen worse.`;
 
-function showIntro(){
-  const overlay = document.getElementById('intro-overlay');
-  overlay.classList.remove('hidden');
-  const textEl = document.getElementById('intro-text');
-  textEl.textContent = '';
-  const tokenBtn = document.getElementById('insert-token-btn');
-  tokenBtn.hidden = true;
-  let i = 0;
-  function type(){
-    if(i < INTRO_TEXT.length){
-      textEl.textContent = INTRO_TEXT.slice(0, i + 1);
-      i++;
-      setTimeout(type, 18);
-    } else {
-      tokenBtn.hidden = false;
-      tokenBtn.focus();
-    }
-  }
-  setTimeout(type, 400);
-}
+      function showIntro() {
+        Audio.stopMusic();
+        Audio.startHum();
+        const overlay = document.getElementById("intro-overlay");
+        overlay.classList.remove("hidden");
+        const textEl = document.getElementById("intro-text");
+        textEl.textContent = "";
+        const tokenBtn = document.getElementById("insert-token-btn");
+        tokenBtn.hidden = true;
+        let i = 0;
+        function type() {
+          if (i < INTRO_TEXT.length) {
+            textEl.textContent = INTRO_TEXT.slice(0, i + 1);
+            i++;
+            setTimeout(type, 18);
+          } else {
+            tokenBtn.hidden = false;
+            tokenBtn.focus();
+          }
+        }
+        setTimeout(type, 400);
+      }
 
-function startGame(){
-  document.getElementById('intro-overlay').classList.add('hidden');
-  state.deck = shuffled(SCENARIOS).slice(0, 10);
-  state.idx = 0;
-  state.destined = 0;
-  state.absurd = 0;
-  state.mundane = 0;
-  state.locked = false;
-  endcard.classList.remove("show");
-  renderRound();
-}
+      function startGame() {
+        document.getElementById("intro-overlay").classList.add("hidden");
+        Audio.stopHum();
+        Audio.startMusic();
+        state.deck = shuffled(SCENARIOS).slice(0, 10);
+        state.idx = 0;
+        state.destined = 0;
+        state.absurd = 0;
+        state.mundane = 0;
+        state.locked = false;
+        endcard.classList.remove("show");
+        renderRound();
+      }
 
-/* ===================== EVENTS ===================== */
-nextBtn.addEventListener("click", nextRound);
-document.getElementById('insert-token-btn').addEventListener('click', startGame);
-$("#reset").addEventListener("click", showIntro);
-$("#play-again").addEventListener("click", startGame);
+      /* ===================== EVENTS ===================== */
+      nextBtn.addEventListener("click", nextRound);
+      document
+        .getElementById("insert-token-btn")
+        .addEventListener("click", startGame);
+      $("#reset").addEventListener("click", showIntro);
+      $("#play-again").addEventListener("click", startGame);
 
-// Start audio on first user interaction (browser autoplay policy)
-function firstInteract(){
-  Audio.resume();
-  Audio.startHum();
-  document.removeEventListener("pointerdown", firstInteract);
-  document.removeEventListener("keydown", firstInteract);
-}
-document.addEventListener("pointerdown", firstInteract);
-document.addEventListener("keydown", firstInteract);
+      // Start audio on first user interaction (browser autoplay policy)
+      function firstInteract() {
+        Audio.resume();
+        Audio.startHum();
+        document.removeEventListener("pointerdown", firstInteract);
+        document.removeEventListener("keydown", firstInteract);
+      }
+      document.addEventListener("pointerdown", firstInteract);
+      document.addEventListener("keydown", firstInteract);
 
-// Mute toggle
-const muteBtn = document.getElementById("mute-btn");
-if(muteBtn){
-  muteBtn.addEventListener("click", () => {
-    const next = !Audio.isMuted();
-    Audio.setMuted(next);
-    muteBtn.textContent = next ? "♪ Sound Off" : "♪ Sound On";
-    muteBtn.dataset.muted = next ? "1" : "0";
-  });
-}
+      // Mute toggle
+      const muteBtn = document.getElementById("mute-btn");
+      if (muteBtn) {
+        muteBtn.addEventListener("click", () => {
+          const next = !Audio.isMuted();
+          Audio.setMuted(next);
+          muteBtn.textContent = next ? "♪ Sound Off" : "♪ Sound On";
+          muteBtn.dataset.muted = next ? "1" : "0";
+        });
+      }
 
-document.addEventListener("keydown", (e) => {
-  if(endcard.classList.contains("show")){
-    if(e.key === "Enter" || e.key.toLowerCase() === "n"){ startGame(); }
-    return;
-  }
-  if(!document.getElementById('intro-overlay').classList.contains('hidden')) return;
-  if(["1","2","3"].includes(e.key) && !state.locked){
-    const btn = slotsEl.children[parseInt(e.key,10)-1];
-    if(btn) btn.click();
-  } else if(e.key.toLowerCase() === "n" && !nextBtn.hidden){
-    nextRound();
-  }
-});
+      document.addEventListener("keydown", (e) => {
+        if (endcard.classList.contains("show")) {
+          if (e.key === "Enter" || e.key.toLowerCase() === "n") {
+            startGame();
+          }
+          return;
+        }
+        if (
+          !document.getElementById("intro-overlay").classList.contains("hidden")
+        )
+          return;
+        if (["1", "2", "3"].includes(e.key) && !state.locked) {
+          const btn = slotsEl.children[parseInt(e.key, 10) - 1];
+          if (btn) btn.click();
+        } else if (e.key.toLowerCase() === "n" && !nextBtn.hidden) {
+          nextRound();
+        }
+      });
 
-showIntro();
-</script>
-</body>
+      showIntro();
+    </script>
+  </body>
 </html>
