@@ -17,8 +17,8 @@
     --accent: oklch(0.72 0.16 60);
     --accent-deep: oklch(0.55 0.16 55);
     --good: oklch(0.65 0.14 150);
-    --funny: oklch(0.72 0.16 60);
-    --bad: oklch(0.6 0.16 25);
+    --absurd: oklch(0.72 0.16 60);
+    --mundane: oklch(0.6 0.16 25);
     --display: 'Space Grotesk', system-ui, sans-serif;
     --mono: 'JetBrains Mono', ui-monospace, monospace;
   }
@@ -65,8 +65,9 @@
   }
   .score-pill .k{ color:var(--ink-2); text-transform:uppercase; letter-spacing:.08em; font-size:10px }
   .score-pill .v{ font-weight:600; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums }
-  .score-pill.correct .v{ color: var(--good) }
-  .score-pill.funny .v{ color: var(--funny) }
+  .score-pill.destined .v{ color: var(--good) }
+  .score-pill.absurd .v{ color: var(--absurd) }
+  .score-pill.mundane .v{ color: var(--mundane) }
 
   /* ================= SCENE ================= */
   .scene{
@@ -345,9 +346,9 @@
     border: 1px solid currentColor;
     font-weight: 600;
   }
-  .verdict.correct{ color: var(--good) }
-  .verdict.funny{ color: var(--funny) }
-  .verdict.bad{ color: var(--bad) }
+  .verdict.destined{ color: var(--good) }
+  .verdict.absurd{ color: var(--absurd) }
+  .verdict.mundane{ color: var(--mundane) }
   .result-body{
     font-family: var(--display); font-size: 15px; line-height: 1.4;
     color: var(--ink);
@@ -396,7 +397,7 @@
   }
   .reset:hover{ color: var(--ink) }
   .footer button.reset + button.reset{ margin-left: 12px }
-  #mute-btn[data-muted="1"]{ color: var(--bad) }
+  #mute-btn[data-muted="1"]{ color: var(--mundane) }
 
   /* ================= END SCREEN ================= */
   .endcard{
@@ -421,7 +422,7 @@
   }
   .endcard .sub{ font-family:var(--mono); font-size:12px; color:var(--ink-2); margin-bottom:20px; letter-spacing:.08em; text-transform:uppercase }
   .endcard .tallies{
-    display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;
+    display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px;
   }
   .tally{
     border:1px solid var(--ink); border-radius: 10px; padding: 14px;
@@ -429,8 +430,9 @@
   }
   .tally .k{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-2) }
   .tally .v{ font-family:var(--display); font-size: 32px; font-weight:600; font-variant-numeric:tabular-nums }
-  .tally.correct .v{ color: var(--good) }
-  .tally.funny .v{ color: var(--funny) }
+  .tally.destined .v{ color: var(--good) }
+  .tally.absurd .v{ color: var(--absurd) }
+  .tally.mundane .v{ color: var(--mundane) }
   .endcard .rank{
     font-family: var(--display); font-size: 18px; margin-bottom: 18px;
     padding: 10px; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line);
@@ -508,8 +510,9 @@
   <header class="topbar">
     <div class="logo">VEND YOUR <b>DESTINY</b> &nbsp;·&nbsp; v1.0<br><span style="font-size:9px;letter-spacing:.06em;color:var(--ink-2);font-weight:400">A DEUS EX MACHINA EXPERIENCE</span></div>
     <div class="scoreboard">
-      <div class="score-pill correct"><span class="k">Destined</span><span class="v" id="sc-correct">0</span></div>
-      <div class="score-pill funny"><span class="k">Absurd</span><span class="v" id="sc-funny">0</span></div>
+      <div class="score-pill destined"><span class="k">Destined</span><span class="v" id="sc-destined">0</span></div>
+      <div class="score-pill absurd"><span class="k">Absurd</span><span class="v" id="sc-absurd">0</span></div>
+      <div class="score-pill mundane"><span class="k">Mundane</span><span class="v" id="sc-mundane">0</span></div>
       <div class="score-pill"><span class="k">Round</span><span class="v" id="sc-round">0/10</span></div>
     </div>
   </header>
@@ -566,8 +569,9 @@
     <div class="sub">Shift Complete</div>
     <h2 id="end-title">The machine hums to sleep.</h2>
     <div class="tallies">
-      <div class="tally correct"><div class="k">Destined</div><div class="v" id="end-correct">0</div></div>
-      <div class="tally funny"><div class="k">Absurd</div><div class="v" id="end-funny">0</div></div>
+      <div class="tally destined"><div class="k">Destined</div><div class="v" id="end-destined">0</div></div>
+      <div class="tally absurd"><div class="k">Absurd</div><div class="v" id="end-absurd">0</div></div>
+      <div class="tally mundane"><div class="k">Mundane</div><div class="v" id="end-mundane">0</div></div>
     </div>
     <div class="rank" id="end-rank">—</div>
     <button class="next-btn" id="play-again">Play Again</button>
@@ -583,11 +587,11 @@ const SCENARIOS = [
     tag: "armored, unmoved",
     problem: "I have faced a thousand battles. I have never lost. Today I feel... nothing. The dragons arrive at noon.",
     options: [
-      { code: "A1", name: "A Worthy Opponent", glyph: "✕", kind: "correct",
+      { code: "A1", name: "A Worthy Opponent", glyph: "✕", kind: "destined",
         reply: "DISPENSED. Arrives immediately. Turns out it's you, six years ago. The fight takes all morning. You feel everything again." },
-      { code: "B2", name: "Manchet",           glyph: "▭", kind: "funny",
+      { code: "B2", name: "Manchet",           glyph: "▭", kind: "absurd",
         reply: "DISPENSED. The lord's bread. Soft, white, deeply inappropriate. You eat it slowly. It is the best thing you have ever tasted. The dragons can wait." },
-      { code: "C3", name: "Motivational Poster", glyph: "✦", kind: "bad",
+      { code: "C3", name: "Motivational Poster", glyph: "✦", kind: "mundane",
         reply: "DISPENSED. Illuminated manuscript. Hand-lettered. Says \"Persevere.\" You stare at it for eleven minutes. The dragons arrive. You are still reading." },
     ],
   },
@@ -597,11 +601,11 @@ const SCENARIOS = [
     tag: "robes, distracted",
     problem: "I have studied the arcane arts for forty years, crossed dimensions, and even seen the void look back. Yet, the only thing in my head right now before an impending duel is how to make perfect toast.",
     options: [
-      { code: "A1", name: "The Void, Toasted", glyph: "◼", kind: "correct",
+      { code: "A1", name: "The Void, Toasted", glyph: "◼", kind: "destined",
         reply: "DISPENSED. A single slice. Burnt at the edges, warm in the middle. You understand suddenly that the void was always hungry too. You sit down together. You share breakfast. The duel can wait." },
-      { code: "B2", name: "Toaster 3000",      glyph: "▯▯", kind: "funny",
+      { code: "B2", name: "Toaster 3000",      glyph: "▯▯", kind: "absurd",
         reply: "DISPENSED. You arrive at the duel. You make toast. It is transcendent. Your opponent eats a slice. He concedes. Nobody fully understands what happened." },
-      { code: "C3", name: "A Bread Recipe",    glyph: "✎", kind: "bad",
+      { code: "C3", name: "A Bread Recipe",    glyph: "✎", kind: "mundane",
         reply: "DISPENSED. Handwritten. Laminated. The machine is very proud of it. You do not have the ingredients. You do not have the time. It is, however, a great recipe." },
     ],
   },
@@ -611,11 +615,11 @@ const SCENARIOS = [
     tag: "sleepless, trending",
     problem: "During a live stream I said 'I wish I could sleep for a hundred years.' My anti-fans clipped it. Now the headline reads: IDOL ABANDONS FANS. My comeback is in three days.",
     options: [
-      { code: "A1", name: "A Good Night's Sleep", glyph: "☾", kind: "correct",
+      { code: "A1", name: "A Good Night's Sleep", glyph: "☾", kind: "destined",
         reply: "DISPENSED. Eight hours. No notifications. No algorithms. You wake up and the internet has moved on to something else entirely. It always does. Your comeback is still in three days. You are ready." },
-      { code: "B2", name: "Snorlax Standee",      glyph: "▓", kind: "funny",
+      { code: "B2", name: "Snorlax Standee",      glyph: "▓", kind: "absurd",
         reply: "DISPENSED. Fans place it outside your agency building overnight. By morning #IdolSleepsHard is trending. Your fandom has rebranded your scandal into a personality trait. Somehow this works." },
-      { code: "C3", name: "Royal Sleep Kit",      glyph: "♛", kind: "bad",
+      { code: "C3", name: "Royal Sleep Kit",      glyph: "♛", kind: "mundane",
         reply: "DISPENSED. The machine meant well. You are now in a tower. Your comeback has been rescheduled by approximately one hundred years. Your anti-fans are also asleep. Small mercies." },
     ],
   },
@@ -625,11 +629,11 @@ const SCENARIOS = [
     tag: "saltworn, grieving",
     problem: "Me ship is gone. Took thirty years to build her. She knew every current, every wind. The crew can find another captain. But I am nothing without her.",
     options: [
-      { code: "A1", name: "The First Plank",   glyph: "▬", kind: "correct",
+      { code: "A1", name: "The First Plank",   glyph: "▬", kind: "destined",
         reply: "DISPENSED. Worn. Salt-bleached. From before she had a name. You hold it for a long time. Then you find a forest. Then you find an axe. You know what comes next." },
-      { code: "B2", name: "Ship in a Bottle",  glyph: "▲", kind: "funny",
+      { code: "B2", name: "Ship in a Bottle",  glyph: "▲", kind: "absurd",
         reply: "DISPENSED. One ship. Fully rigged. Approximately four inches long. It is exquisite. You hold it up to the light for a very long time. The crew watches in silence. Nobody knows what to say." },
-      { code: "C3", name: "A Future Ship",     glyph: "◈", kind: "bad",
+      { code: "C3", name: "A Future Ship",     glyph: "◈", kind: "mundane",
         reply: "DISPENSED. You are now in the future. Piracy still exists. It involves a laptop and a VPN. You do not like it here. You do not understand any of this. The ocean is right outside but somehow unreachable." },
     ],
   },
@@ -639,11 +643,11 @@ const SCENARIOS = [
     tag: "lanyard, fluorescent light",
     problem: "I hit 'reply-all' on the CEO's email. It's 9:02 AM. I am considering the ocean.",
     options: [
-      { code: "A1", name: "Radical Transparency", glyph: "✉", kind: "correct",
+      { code: "A1", name: "Radical Transparency", glyph: "✉", kind: "destined",
         reply: "DISPENSED. You send one more email. Subject line: My Sincere Apologies. No filter. Just exactly what happened and exactly how you feel about it. The CEO replies in four minutes; \"All good.\" You are going to be fine." },
-      { code: "B2", name: "A Second Reply-All",   glyph: "!!", kind: "funny",
+      { code: "B2", name: "A Second Reply-All",   glyph: "!!", kind: "absurd",
         reply: "DISPENSED. You don't know what came over you. Neither does anyone else. By 9:45 AM there is a Slack thread, a meme, and three people who say it's the best thing that's ever happened at this company. HR is still processing." },
-      { code: "C3", name: "A Coffee",             glyph: "∪", kind: "bad",
+      { code: "C3", name: "A Coffee",             glyph: "∪", kind: "mundane",
         reply: "DISPENSED. Hot. Black. The machine's answer to everything. It does not unsend the email. It does not explain anything. It is, however, a very good coffee. You stare at the wall and drink it slowly." },
     ],
   },
@@ -653,11 +657,11 @@ const SCENARIOS = [
     tag: "translucent, invited",
     problem: "I've haunted this attic for 400 years. Seventeen families. I know every creak, every secret, every name. The current owner just invited me to brunch. I don't know how to be scary anymore. Why am I trying to be scary even?",
     options: [
-      { code: "A1", name: "A Memory",         glyph: "◉", kind: "correct",
+      { code: "A1", name: "A Memory",         glyph: "◉", kind: "destined",
         reply: "DISPENSED. A memory. Yours. 1624. You refused to leave because nobody asked you to. Then nobody ever did. Seventeen families. Four hundred years. You didn't haunt this house. You lived in it. Go to brunch." },
-      { code: "B2", name: "A Welcome Mat",    glyph: "▭", kind: "funny",
+      { code: "B2", name: "A Welcome Mat",    glyph: "▭", kind: "absurd",
         reply: "DISPENSED. Coir. Printed. It says \"STILL HERE\" in friendly letters. You place it outside the attic door. The current owner adds a small plant next to it. You have feelings about this." },
-      { code: "C3", name: "A Bedsheet",       glyph: "◇", kind: "bad",
+      { code: "C3", name: "A Bedsheet",       glyph: "◇", kind: "mundane",
         reply: "DISPENSED. White. Two eye holes. You hold it for a long time... Did the machine just insult you? You put it back. Nobody speaks of this..!" },
     ],
   },
@@ -667,11 +671,11 @@ const SCENARIOS = [
     tag: "trenchcoat, breakfast",
     problem: "The butler did it. And he knows that I know. It's been one whole week. We have breakfast together every morning. The eggs are excellent. The outside keeps raining. I cannot prove a thing.",
     options: [
-      { code: "A1", name: "A Frying Pan",     glyph: "◎", kind: "correct",
+      { code: "A1", name: "A Frying Pan",     glyph: "◎", kind: "destined",
         reply: "DISPENSED. Cast iron. Still warm. You turn it over. You spot the monogram. You have your thread. The eggs, it turns out, were a distraction." },
-      { code: "B2", name: "Another Butler",   glyph: "∩", kind: "funny",
+      { code: "B2", name: "Another Butler",   glyph: "∩", kind: "absurd",
         reply: "DISPENSED. Now there are TWO butlers. One of them did it. You are back to square one." },
-      { code: "C3", name: "An Umbrella",      glyph: "☂", kind: "bad",
+      { code: "C3", name: "An Umbrella",      glyph: "☂", kind: "mundane",
         reply: "DISPENSED. Compact. Reliable. You step outside. The outside is still raining. The case is exactly where you left it. The butler waves from the window. At least you know the eggs tomorrow will also be excellent." },
     ],
   },
@@ -681,11 +685,11 @@ const SCENARIOS = [
     tag: "observer, compromised",
     problem: "Greetings. I have crash-landed. My mission was to observe and document human behaviour. It is now Day 5 since I arrived. I have unknowingly watched seventy-two hours of television. I think I cried at a dog video. I do not know who I am anymore. And why do Earth machines need battery?",
     options: [
-      { code: "A1", name: "A Feelings Chart",       glyph: "◐", kind: "correct",
+      { code: "A1", name: "A Feelings Chart",       glyph: "◐", kind: "destined",
         reply: "DISPENSED. Laminated, and Colour-coded. 55-page documented human emotions with helpful facial diagrams. You study it carefully. You recognise quite a number of emotions from the TV watching. But not all. More observation needs to be done. You do not leave... yet." },
-      { code: "B2", name: "Netflix Subscription",   glyph: "▶", kind: "funny",
+      { code: "B2", name: "Netflix Subscription",   glyph: "▶", kind: "absurd",
         reply: "DISPENSED. One full month. Your ship sits outside, fully operational. Since you had opinions about the third season, what better reason than to continue? You write up a strongly worded review. You are not going home... yet." },
-      { code: "C3", name: "A Battery Manual",       glyph: "▮▯", kind: "bad",
+      { code: "C3", name: "A Battery Manual",       glyph: "▮▯", kind: "mundane",
         reply: "DISPENSED. 128 pages. Comprehensive. Covers everything from alkaline, lithium, nickel-cadmium, to even solar cells. Does not cover why humans adore dog videos. Does not explain the emotions and feelings you supposedly had. You read it anyway." },
     ],
   },
@@ -695,11 +699,11 @@ const SCENARIOS = [
     tag: "scaled, conflicted",
     problem: "I'm trying to be a vegetarian. I read about it in a book. But the villagers keep LEAVING KNIGHTS OUTSIDE MY CAVE. It's rude.",
     options: [
-      { code: "A1", name: "A Vegetable Garden", glyph: "❀", kind: "correct",
+      { code: "A1", name: "A Vegetable Garden", glyph: "❀", kind: "destined",
         reply: "DISPENSED. Seeds, soil, and a small trowel. Sized for dragon claws. You plant it outside your cave. The villagers stop leaving knights. Instead, they start leaving unsolicited gardening advice. Still rude. But you have tomatoes now." },
-      { code: "B2", name: "Tofu Knight",        glyph: "▣", kind: "funny",
+      { code: "B2", name: "Tofu Knight",        glyph: "▣", kind: "absurd",
         reply: "DISPENSED. It's a knight-shaped block of tofu. Marinated. Surprisingly satisfying." },
-      { code: "C3", name: "A Bib",              glyph: "◡", kind: "bad",
+      { code: "C3", name: "A Bib",              glyph: "◡", kind: "mundane",
         reply: "DISPENSED. Oversized. Embroidered in large colourful letters: \"BON APPÉTIT!\". Perfect for a baby dragon... wait, are you? Nonetheless, you fold it carefully and place it in your cave. Who knows?" },
     ],
   },
@@ -709,11 +713,11 @@ const SCENARIOS = [
     tag: "caffeinated, blank",
     problem: "The two-week jam ends in four days. I suddenly have an idea. And I have Cursor Pro. Yet I have been staring at a blank screen for two hours. Every entry seems to be on point.. wait why am I overthinking. What am I doing again?",
     options: [
-      { code: "A1", name: "First Line of Code", glyph: "{ }", kind: "correct",
+      { code: "A1", name: "First Line of Code", glyph: "{ }", kind: "destined",
         reply: "DISPENSED. You type the first line. Then another. And another. You realised the blank screen is gone. You are doing it. You were always going to." },
-      { code: "B2", name: "Designing the UI",   glyph: "▦", kind: "funny",
+      { code: "B2", name: "Designing the UI",   glyph: "▦", kind: "absurd",
         reply: "DISPENSED. Placement. Colour palette. Fonts. You have not written a single line of logic. You deliberate... Maybe this font is better. The coding will happen.. soon." },
-      { code: "C3", name: "Research Entries",   glyph: "☰", kind: "bad",
+      { code: "C3", name: "Research Entries",   glyph: "☰", kind: "mundane",
         reply: "DISPENSED. You scroll through the entries. Everyone is so good. Someone even submitted on Day 1, wow! Five pages later, it hits you. Today is Day 11. Your screen is still blank. The research was very thorough though. Please start." },
     ],
   },
@@ -924,9 +928,9 @@ const Audio = (() => {
 const state = {
   deck: [],
   idx: 0,
-  correct: 0,
-  funny: 0,
-  bad: 0,
+  destined: 0,
+  absurd: 0,
+  mundane: 0,
   locked: false,
 };
 
@@ -961,8 +965,9 @@ function setDisplay(text){
 }
 
 function updateScoreboard(){
-  $("#sc-correct").textContent = state.correct;
-  $("#sc-funny").textContent = state.funny;
+  $("#sc-destined").textContent = state.destined;
+  $("#sc-absurd").textContent = state.absurd;
+  $("#sc-mundane").textContent = state.mundane;
   $("#sc-round").textContent = `${Math.min(state.idx+1, state.deck.length)}/${state.deck.length}`;
 }
 
@@ -1039,15 +1044,15 @@ function pick(opt, btn){
 function showResult(opt){
   let points = 0;
   let verdict = "MUNDANE";
-  let vClass = "bad";
-  if(opt.kind === "correct"){ state.correct++; points = 10; verdict = "DESTINED"; vClass = "correct"; }
-  else if(opt.kind === "funny"){ state.funny++; points = 5;  verdict = "ABSURD"; vClass = "funny"; }
-  else { state.bad++; points = 1; verdict = "MUNDANE"; vClass = "bad"; }
+  let vClass = "mundane";
+  if(opt.kind === "destined"){ state.destined++; points = 10; verdict = "DESTINED"; vClass = "destined"; }
+  else if(opt.kind === "absurd"){ state.absurd++; points = 5;  verdict = "ABSURD"; vClass = "absurd"; }
+  else { state.mundane++; points = 1; verdict = "MUNDANE"; vClass = "mundane"; }
 
   verdictEl.textContent = verdict;
   verdictEl.className = "verdict " + vClass;
-  if(opt.kind === "correct") Audio.correctTone();
-  else if(opt.kind === "funny") Audio.funnyTone();
+  if(opt.kind === "destined") Audio.correctTone();
+  else if(opt.kind === "absurd") Audio.funnyTone();
   else Audio.badTone();
   resultBody.textContent = opt.reply;
   resultItem.textContent = opt.name;
@@ -1075,14 +1080,15 @@ function nextRound(){
 }
 
 function endGame(){
-  $("#end-correct").textContent = state.correct;
-  $("#end-funny").textContent = state.funny;
-  const total = state.correct * 10 + state.funny * 5 + state.bad * 1;
+  $("#end-destined").textContent = state.destined;
+  $("#end-absurd").textContent = state.absurd;
+  $("#end-mundane").textContent = state.mundane;
+  const total = state.destined * 10 + state.absurd * 5 + state.mundane * 1;
   let rank, title;
-  if(state.correct >= 8){ rank = "ARCHIVIST OF FATE"; title = "The machine nods approvingly."; }
-  else if(state.funny >= 6){ rank = "CHAOS CONCIERGE"; title = "The machine snickers, vending."; }
-  else if(state.correct + state.funny >= 7){ rank = "COMPETENT ORACLE"; title = "A solid shift. The light stays green."; }
-  else if(state.bad >= 6){ rank = "CURSED VENDOR"; title = "The machine sighs, mechanically."; }
+  if(state.destined >= 8){ rank = "ARCHIVIST OF FATE"; title = "The machine nods approvingly."; }
+  else if(state.absurd >= 6){ rank = "CHAOS CONCIERGE"; title = "The machine snickers, vending."; }
+  else if(state.destined + state.absurd >= 7){ rank = "COMPETENT ORACLE"; title = "A solid shift. The light stays green."; }
+  else if(state.mundane >= 6){ rank = "CURSED VENDOR"; title = "The machine sighs, mechanically."; }
   else { rank = "APPRENTICE DISPENSER"; title = "The machine is neither pleased nor displeased."; }
   $("#end-rank").innerHTML = `Rank: <b>${rank}</b> &nbsp;·&nbsp; ${total} pts`;
   $("#end-title").textContent = title;
@@ -1126,9 +1132,9 @@ function startGame(){
   document.getElementById('intro-overlay').classList.add('hidden');
   state.deck = shuffled(SCENARIOS).slice(0, 10);
   state.idx = 0;
-  state.correct = 0;
-  state.funny = 0;
-  state.bad = 0;
+  state.destined = 0;
+  state.absurd = 0;
+  state.mundane = 0;
   state.locked = false;
   endcard.classList.remove("show");
   renderRound();
