@@ -754,6 +754,13 @@
         justify-content: center;
         z-index: 100;
         padding: 24px;
+        overflow-y: auto;
+      }
+      @media (max-height: 700px), (max-width: 600px) {
+        .intro-overlay {
+          align-items: flex-start;
+          padding: 32px 24px 48px;
+        }
       }
       .intro-overlay.hidden {
         display: none;
