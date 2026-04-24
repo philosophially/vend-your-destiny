@@ -119,7 +119,8 @@
     background: var(--bg-2);
     border: 1px solid var(--ink);
     border-radius: 6px;
-    display:flex; flex-direction:column; justify-content:flex-end; align-items:center;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    gap: 6px;
     padding: 10px;
     font-family: var(--mono); font-size: 11px; color: var(--ink-2);
     text-align:center;
@@ -137,14 +138,13 @@
 
   /* ========== PORTRAITS ========== */
   .portrait{
-    position: absolute;
-    left: 50%; top: 14px;
-    transform: translateX(-50%);
-    width: 150px; height: 180px;
+    position: relative;
+    z-index: 2;
+    width: 150px;
     display: flex; align-items: center; justify-content: center;
   }
   .portrait img{
-    width: 100%; height: 100%;
+    width: 100%; height: auto;
     object-fit: contain;
     display: block;
   }
@@ -583,9 +583,9 @@ const SCENARIOS = [
     tag: "armored, unmoved",
     problem: "I have faced a thousand battles. I have never lost. Today I feel... nothing. The dragons arrive at noon.",
     options: [
-      { code: "A1", name: "A Worthy Opponent", glyph: "⚔", kind: "correct",
+      { code: "A1", name: "A Worthy Opponent", glyph: "✕", kind: "correct",
         reply: "DISPENSED. Arrives immediately. Turns out it's you, six years ago. The fight takes all morning. You feel everything again." },
-      { code: "B2", name: "Manchet",           glyph: "🥖", kind: "funny",
+      { code: "B2", name: "Manchet",           glyph: "▭", kind: "funny",
         reply: "DISPENSED. The lord's bread. Soft, white, deeply inappropriate. You eat it slowly. It is the best thing you have ever tasted. The dragons can wait." },
       { code: "C3", name: "Motivational Poster", glyph: "✦", kind: "bad",
         reply: "DISPENSED. Illuminated manuscript. Hand-lettered. Says \"Persevere.\" You stare at it for eleven minutes. The dragons arrive. You are still reading." },
@@ -627,7 +627,7 @@ const SCENARIOS = [
     options: [
       { code: "A1", name: "The First Plank",   glyph: "▬", kind: "correct",
         reply: "DISPENSED. Worn. Salt-bleached. From before she had a name. You hold it for a long time. Then you find a forest. Then you find an axe. You know what comes next." },
-      { code: "B2", name: "Ship in a Bottle",  glyph: "⛵", kind: "funny",
+      { code: "B2", name: "Ship in a Bottle",  glyph: "▲", kind: "funny",
         reply: "DISPENSED. One ship. Fully rigged. Approximately four inches long. It is exquisite. You hold it up to the light for a very long time. The crew watches in silence. Nobody knows what to say." },
       { code: "C3", name: "A Future Ship",     glyph: "◈", kind: "bad",
         reply: "DISPENSED. You are now in the future. Piracy still exists. It involves a laptop and a VPN. You do not like it here. You do not understand any of this. The ocean is right outside but somehow unreachable." },
@@ -643,7 +643,7 @@ const SCENARIOS = [
         reply: "DISPENSED. You send one more email. Subject line: My Sincere Apologies. No filter. Just exactly what happened and exactly how you feel about it. The CEO replies in four minutes; \"All good.\" You are going to be fine." },
       { code: "B2", name: "A Second Reply-All",   glyph: "!!", kind: "funny",
         reply: "DISPENSED. You don't know what came over you. Neither does anyone else. By 9:45 AM there is a Slack thread, a meme, and three people who say it's the best thing that's ever happened at this company. HR is still processing." },
-      { code: "C3", name: "A Coffee",             glyph: "☕", kind: "bad",
+      { code: "C3", name: "A Coffee",             glyph: "∪", kind: "bad",
         reply: "DISPENSED. Hot. Black. The machine's answer to everything. It does not unsend the email. It does not explain anything. It is, however, a very good coffee. You stare at the wall and drink it slowly." },
     ],
   },
@@ -669,7 +669,7 @@ const SCENARIOS = [
     options: [
       { code: "A1", name: "A Frying Pan",     glyph: "◎", kind: "correct",
         reply: "DISPENSED. Cast iron. Still warm. You turn it over. You spot the monogram. You have your thread. The eggs, it turns out, were a distraction." },
-      { code: "B2", name: "Another Butler",   glyph: "🎩", kind: "funny",
+      { code: "B2", name: "Another Butler",   glyph: "∩", kind: "funny",
         reply: "DISPENSED. Now there are TWO butlers. One of them did it. You are back to square one." },
       { code: "C3", name: "An Umbrella",      glyph: "☂", kind: "bad",
         reply: "DISPENSED. Compact. Reliable. You step outside. The outside is still raining. The case is exactly where you left it. The butler waves from the window. At least you know the eggs tomorrow will also be excellent." },
