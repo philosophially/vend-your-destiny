@@ -418,9 +418,9 @@
     box-shadow: 8px 8px 0 var(--accent-deep);
   }
   .endcard h2{
-    font-family: var(--display); font-size: 28px; margin: 0 0 6px;
+    font-family: var(--display); font-size: 28px; margin: 0 0 8px;
   }
-  .endcard .sub{ font-family:var(--mono); font-size:12px; color:var(--ink-2); margin-bottom:20px; letter-spacing:.08em; text-transform:uppercase }
+  .endcard .flavour{ font-family:var(--mono); font-size:12px; color:var(--ink-2); margin: 0 0 20px; letter-spacing:.04em; }
   .endcard .tallies{
     display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px;
   }
@@ -433,10 +433,6 @@
   .tally.destined .v{ color: var(--good) }
   .tally.absurd .v{ color: var(--absurd) }
   .tally.mundane .v{ color: var(--mundane) }
-  .endcard .rank{
-    font-family: var(--display); font-size: 18px; margin-bottom: 18px;
-    padding: 10px; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line);
-  }
 
   /* ================= INTRO OVERLAY ================= */
   .intro-overlay{
@@ -566,14 +562,13 @@
 
 <div class="endcard" id="endcard">
   <div class="inner">
-    <div class="sub">Shift Complete</div>
-    <h2 id="end-title">The machine hums to sleep.</h2>
+    <h2 id="end-rank">—</h2>
+    <p class="flavour" id="end-title">The machine hums to sleep.</p>
     <div class="tallies">
       <div class="tally destined"><div class="k">Destined</div><div class="v" id="end-destined">0</div></div>
       <div class="tally absurd"><div class="k">Absurd</div><div class="v" id="end-absurd">0</div></div>
       <div class="tally mundane"><div class="k">Mundane</div><div class="v" id="end-mundane">0</div></div>
     </div>
-    <div class="rank" id="end-rank">—</div>
     <button class="next-btn" id="play-again">Play Again</button>
   </div>
 </div>
@@ -1083,14 +1078,13 @@ function endGame(){
   $("#end-destined").textContent = state.destined;
   $("#end-absurd").textContent = state.absurd;
   $("#end-mundane").textContent = state.mundane;
-  const total = state.destined * 10 + state.absurd * 5 + state.mundane * 1;
   let rank, title;
-  if(state.destined >= 8){ rank = "ARCHIVIST OF FATE"; title = "The machine nods approvingly."; }
-  else if(state.absurd >= 6){ rank = "CHAOS CONCIERGE"; title = "The machine snickers, vending."; }
-  else if(state.destined + state.absurd >= 7){ rank = "COMPETENT ORACLE"; title = "A solid shift. The light stays green."; }
-  else if(state.mundane >= 6){ rank = "CURSED VENDOR"; title = "The machine sighs, mechanically."; }
-  else { rank = "APPRENTICE DISPENSER"; title = "The machine is neither pleased nor displeased."; }
-  $("#end-rank").innerHTML = `Rank: <b>${rank}</b> &nbsp;·&nbsp; ${total} pts`;
+  if(state.destined >= 7){ rank = "ARCHIVIST OF FATE"; title = "The machine files this under: Exceptional."; }
+  else if(state.absurd >= 6){ rank = "CHAOS CONCIERGE"; title = "The machine is still laughing. Somewhere."; }
+  else if(state.destined + state.absurd >= 7){ rank = "COMPETENT ORACLE"; title = "Adequate. The machine suspects you knew what you were doing."; }
+  else if(state.mundane >= 6){ rank = "CURSED VENDOR"; title = "The machine sighs. Mechanically."; }
+  else { rank = "APPRENTICE DISPENSER"; title = "The machine has seen worse. Probably."; }
+  $("#end-rank").textContent = rank;
   $("#end-title").textContent = title;
   endcard.classList.add("show");
   setDisplay("OUT OF ORDER — END OF SHIFT");
